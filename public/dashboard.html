@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            min-height: 100vh;
+        }
+
+        #sidebar {
+            min-width: 220px;
+            max-width: 220px;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .sidebar-link {
+            cursor: pointer;
+        }
+
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        .content-wrapper {
+            margin-left: 220px;
+            padding: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Mi Empresa</a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3" id="user-name">Cargando...</span>
+                <button id="logout-btn" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="bg-light border-end sidebar p-3">
+            <div class="mb-4">
+                <strong>Navegación</strong>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-1">
+                    <div class="nav-link sidebar-link" data-view="dashboard-view">Inicio</div>
+                </li>
+                <li class="nav-item mb-1">
+                    <div class="nav-link sidebar-link" data-view="usuarios-view">Usuarios</div>
+                </li>
+                <li class="nav-item mb-1">
+                    <div class="nav-link sidebar-link" data-view="servicios-view">Servicios</div>
+                </li>
+                <li class="nav-item mb-1">
+                    <div class="nav-link sidebar-link" data-view="movimientos-view">Movimientos</div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="content-wrapper flex-fill">
+            <!-- Alerts -->
+            <div id="alerts"></div>
+
+            <!-- Views -->
+            <div id="dashboard-view" class="view active">
+                <h2>Resumen</h2>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5>Total Usuarios</h5>
+                                <p id="card-total-usuarios" class="fs-4">--</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5>Total Movimientos</h5>
+                                <p id="card-total-movimientos" class="fs-4">--</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5>Ingresos Totales</h5>
+                                <p id="card-ingresos" class="fs-4">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="usuarios-view" class="view">
+                <h2>Usuarios</h2>
+                <!-- Botón crear usuario -->
+                <div class="mb-3 d-flex justify-content-between">
+                    <div>
+                        <input type="text" id="search-users" class="form-control" placeholder="Buscar usuarios..."
+                            style="max-width: 300px;" />
+                    </div>
+                    <div>
+                        <button id="btn-create-user" class="btn btn-success">Crear usuario</button>
+                    </div>
+                </div>
+
+                <!-- Tabla y paginación ya están -->
+                <div id="table-usuarios"></div>
+                <div id="pagination-usuarios" class="mt-2"></div>
+
+                <!-- Modal crear/editar -->
+                <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form id="userForm" class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="userModalTitle">Crear usuario</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="user-id" />
+                                <div class="mb-3">
+                                    <label class="form-label">Usuario</label>
+                                    <input type="text" id="user-username" class="form-control" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="user-email" class="form-control" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Rol</label>
+                                    <select id="user-role" class="form-select" required>
+                                        <option value="admin">Admin</option>
+                                        <option value="cajero">Cajero</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Contraseña <small class="text-muted"
+                                            id="password-hint">(solo si la cambias)</small></label>
+                                    <input type="password" id="user-password" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary" id="save-user-btn">Guardar</button>
+                                <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="servicios-view" class="view">
+                <h2>Servicios</h2>
+                <div id="table-servicios"></div>
+            </div>
+
+            <div id="movimientos-view" class="view">
+                <h2>Movimientos</h2>
+                <div id="table-movimientos"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="../src/app.js"></script>
+</body>
+
+</html>
