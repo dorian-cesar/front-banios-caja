@@ -4,7 +4,7 @@ import { CONFIG } from '../config.js';
 const api = new ApiClient({ baseUrl: CONFIG.BASE_API_URL });
 
 export const authService = {
-  login(email, password) {
-    return api.post('/auth/login', { email, password });
-  }
+  login: (credentials) => api.post('auth/login', credentials),
+  logout: () => api.post('auth/logout'),
+  me: () => api.get('auth/me')
 };

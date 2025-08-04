@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
             btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Verificando...`;
 
-            const { token, user } = await authService.login(email, password);
+            const { token, user } = await authService.login({ email, password });
             saveSession(token, user);
 
             window.location.href = './dashboard.html';

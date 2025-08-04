@@ -1,6 +1,6 @@
 import { usuariosService } from '../api/usuariosService.js';
 import { showAlert } from '../components/alerts.js';
-import { debounce } from '../utils/helpers.js'
+import { debounce, isValidEmail } from '../utils/helpers.js'
 
 let currentPage = 1;
 const pageSize = 10;
@@ -9,21 +9,21 @@ let currentSearch = '';
 const userModal = new bootstrap.Modal(document.getElementById('userModal'));
 
 export function initUsuariosView() {
-    // Bind events
     document.getElementById('btn-create-user').addEventListener('click', () => openUserModal());
-    document.getElementById('search-users').addEventListener('input', debounce((e) => {
-        currentSearch = e.target.value.trim();
+
+    document.getElementById('btn-search-users').addEventListener('click', () => {
+        currentSearch = document.getElementById('search-users').value.trim();
         currentPage = 1;
         loadUsuariosPage();
-    }, 300));
+    });
 
     document.getElementById('userForm').addEventListener('submit', handleSaveUser);
 
-    // Inicializar página
     loadUsuariosPage();
 }
 
 export async function loadUsuariosPage(page = currentPage) {
+    console.log("usuarios")
     currentPage = page;
     const container = document.getElementById('table-usuarios');
     try {
@@ -119,6 +119,23 @@ export async function loadUsuariosPage(page = currentPage) {
     }
 }
 
+async function loadRoles() {
+    try {
+        const roles = await usuariosService.getRoles();
+        const select = document.getElementById('user-role');
+        select.innerHTML = '';
+        roles.forEach(role => {
+            const opt = document.createElement('option');
+            opt.value = role;
+            opt.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+            select.appendChild(opt);
+        });
+    } catch (err) {
+        showAlert('Error cargando roles: ' + err.message, 'danger');
+    }
+}
+
+
 async function handleSaveUser(e) {
     e.preventDefault();
     const id = document.getElementById('user-id').value;
@@ -127,6 +144,28 @@ async function handleSaveUser(e) {
     const role = document.getElementById('user-role').value;
     const password = document.getElementById('user-password').value;
 
+    if (!username || !email || !role) {
+        showAlert('Usuario, email y rol son obligatorios', 'warning');
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        showAlert('Email inválido', 'warning');
+        return;
+    }
+    const allowedRoles = ['admin', 'cajero'];
+    if (!allowedRoles.includes(role.toLowerCase())) {
+        showAlert('Rol inválido', 'warning');
+        return;
+    }
+    if (!id && (!password || password.length < 6)) {
+        showAlert('Contraseña debe tener al menos 6 caracteres', 'warning');
+        return;
+    }
+    if (id && password && password.length < 6) {
+        showAlert('Si cambias la contraseña, debe tener al menos 6 caracteres', 'warning');
+        return;
+    }
     const payload = { username, email, role };
     if (password) payload.password = password; // solo si se puso
 
@@ -146,6 +185,7 @@ async function handleSaveUser(e) {
 }
 
 async function openUserModal(id = null) {
+    console.log("Edit user id:", id);
     document.getElementById('userForm').reset();
     document.getElementById('user-password').value = '';
     document.getElementById('user-id').value = '';
@@ -159,7 +199,9 @@ async function openUserModal(id = null) {
             document.getElementById('user-id').value = user.id;
             document.getElementById('user-username').value = user.username;
             document.getElementById('user-email').value = user.email;
+            await loadRoles();
             document.getElementById('user-role').value = user.role.toLowerCase();
+
         } catch (err) {
             showAlert('No se pudo cargar usuario: ' + err.message, 'danger');
             return;
