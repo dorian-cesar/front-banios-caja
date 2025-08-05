@@ -1,12 +1,13 @@
 import { authService } from '../api/authService.js';
-import { saveSession, getToken } from '../utils/session.js';
+import { saveSession, getToken, isTokenExpired } from '../utils/session.js';
 
-if (getToken()) {
-    // Si ya está logueado, redirigir
+if (getToken() && !isTokenExpired()) {
     window.location.href = './dashboard.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    applyThemeFromStorage();
 
     const form = document.getElementById('loginForm');
     const alertContainer = document.getElementById('alert-container');
@@ -48,4 +49,22 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>`;
     }
+
+    function applyThemeFromStorage() {
+        const savedTheme = localStorage.getItem('theme');
+        const isDark = savedTheme === 'dark';
+        
+        // Aplicar tema solo si está configurado como oscuro
+        if (isDark) {
+            document.body.classList.add('dark-theme');
+            
+            // También puedes forzar el tema oscuro en el dashboard
+            localStorage.setItem('theme', 'dark');
+        } else {
+            // Asegurarse de que esté en modo claro si no hay preferencia
+            document.body.classList.remove('dark-theme');
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
 });

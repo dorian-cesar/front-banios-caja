@@ -1,9 +1,9 @@
 ```
 .
 └── FRONT-MANTENEDOR-BANOS/
-    ├── node_modules/
     ├── public/
     │   ├── dashboard.html
+    │   ├── profile.html
     │   └── index.html
     ├── src/
     │   ├── api/
@@ -17,6 +17,8 @@
     │   ├── components/
     │   │   ├── alerts.js
     │   │   └── charts.js
+    │   ├── config/
+    │   │   └── config.js
     │   ├── styles/
     │   │   ├── dashboard.css
     │   │   └── login.css
@@ -32,9 +34,6 @@
     │       ├── servicios.js
     │       └── usuarios.js
     ├── app.js
-    ├── config.js
     ├── .gitignore
-    ├── package-lock.json
-    ├── package.json
     └── readme.md
 ```

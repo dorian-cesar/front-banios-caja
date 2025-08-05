@@ -1,3 +1,24 @@
+function parseJwt(token) {
+    try {
+        const base64Payload = token.split('.')[1];
+        const payload = atob(base64Payload);
+        return JSON.parse(payload);
+    } catch {
+        return null;
+    }
+}
+
+export function isTokenExpired() {
+    const token = getToken();
+    if (!token) return true;
+
+    const payload = parseJwt(token);
+    if (!payload || !payload.exp) return true;
+
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp < now;
+}
+
 export function saveSession(token, user) {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));

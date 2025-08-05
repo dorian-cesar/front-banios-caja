@@ -1,5 +1,5 @@
 import { ApiClient } from './apiClient.js';
-import { CONFIG } from '../config.js';
+import { CONFIG } from '../config/config.js';
 const api = new ApiClient({ baseUrl: CONFIG.BASE_API_URL });
 
 export const aperturasCierresService = {

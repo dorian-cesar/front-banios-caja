@@ -96,14 +96,10 @@ export async function loadMovimientos(page = 1) {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Apertura/Cierre</th>
-            <th>Usuario</th>
-            <th>Servicio</th>
-            <th>Caja</th>
-            <th>Monto</th>
-            <th>Medio Pago</th>
-            <th>Fecha</th>
-            <th>Hora</th>
+            <th>Caja / A/C</th>
+            <th>Usuario / Servicio</th>
+            <th>Monto / Medio</th>
+            <th>Fechas</th>
             <th>Código</th>
             <th class="text-end">Acciones</th>
           </tr>
@@ -115,25 +111,36 @@ export async function loadMovimientos(page = 1) {
             html += `
         <tr data-id="${m.id}">
           <td>${m.id}</td>
-          <td>${m.id_aperturas_cierres}</td>
-          <td>${m.id_usuario}</td>
-          <td>${m.id_servicio}</td>
-          <td>${m.numero_caja}</td>
-          <td>${formatCurrencyCLP(m.monto)}</td>
-          <td>${m.medio_pago}</td>
-          <td>${formatDateISOToDMY(m.fecha)}</td>
-          <td>${formatTime(m.hora)}</td>
-          <td>${m.codigo}</td>
+          <td>
+            Caja: ${m.numero_caja}<br>
+            A/C: ${m.id_aperturas_cierres}
+          </td>
+          <td>
+            <strong>Usuario:</strong> ${m.nombre_usuario}<br>
+            <small>Servicio: ${m.nombre_servicio}</small>
+          </td>
+          <td>
+            ${formatCurrencyCLP(m.monto)}<br>
+            <small>${m.medio_pago}</small>
+          </td>
+          <td>
+            ${formatDateISOToDMY(m.fecha)} ${formatTime(m.hora)}
+          </td>
+          <td>${m.codigo || '-'}</td>
           <td class="text-end">
-            <button class="btn btn-sm btn-outline-primary me-1 btn-edit" data-id="${m.id}">Editar</button>
-            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${m.id}">Borrar</button>
+            <button class="btn btn-sm btn-primary me-1 btn-edit" data-id="${m.id}">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button class="btn btn-sm btn-danger btn-delete" data-id="${m.id}">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </td>
         </tr>
       `;
         });
 
         if (movimientos.length === 0) {
-            html += `<tr><td colspan="11" class="text-center text-muted">No hay movimientos</td></tr>`;
+            html += `<tr><td colspan="7" class="text-center text-muted">No hay movimientos</td></tr>`;
         }
 
         html += '</tbody></table>';
@@ -143,10 +150,8 @@ export async function loadMovimientos(page = 1) {
       <div class="d-flex justify-content-between align-items-center">
         <div><small>Mostrando página ${currentPage} de ${totalPages} — Total: ${total}</small></div>
         <div>
-          <button class="btn btn-sm btn-outline-secondary me-1" id="prev-movimiento" ${currentPage === 1 ? 'disabled' : ''
-            }>«</button>
-          <button class="btn btn-sm btn-outline-secondary" id="next-movimiento" ${currentPage === totalPages ? 'disabled' : ''
-            }>»</button>
+          <button class="btn btn-sm btn-outline-secondary me-1" id="prev-movimiento" ${currentPage === 1 ? 'disabled' : ''}>«</button>
+          <button class="btn btn-sm btn-outline-secondary" id="next-movimiento" ${currentPage === totalPages ? 'disabled' : ''}>»</button>
         </div>
       </div>
     `;
@@ -181,6 +186,7 @@ export async function loadMovimientos(page = 1) {
         container.innerHTML = `<p class="text-danger">Error cargando movimientos: ${err.message}</p>`;
     }
 }
+
 
 async function handleSaveMovimiento(e) {
     e.preventDefault();

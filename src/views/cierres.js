@@ -62,56 +62,54 @@ export async function loadAperturasCierresPage(page = currentPage) {
         const total = resp.total;
 
         let html = `
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>N° Caja</th>
-        <th>Usuario Apertura</th>
-        <th>Usuario Cierre</th>
-        <th>Fecha Apertura</th>
-        <th>Hora Apertura</th>
-        <th>Fecha Cierre</th>
-        <th>Hora Cierre</th>
-        <th>Monto Inicial</th>
-        <th>Total Efectivo</th>
-        <th>Total Tarjeta</th>
-        <th>Total General</th>
-        <th>Estado</th>
-        <th>Arqueada</th>
-        <th class="text-end">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-`;
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Caja</th>
+              <th>Usuarios</th>
+              <th>Fechas</th>
+              <th>Monto Inicial</th>
+              <th>Totales</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
 
         registros.forEach(r => {
+            const totalGeneral = (parseFloat(r.total_efectivo || 0) + parseFloat(r.total_tarjeta || 0));
             html += `
-      <tr data-id="${r.id}">
-        <td>${r.id}</td>
-        <td>${r.numero_caja}</td>
-        <td>${r.id_usuario_apertura}</td>
-        <td>${r.id_usuario_cierre || '-'}</td>
-        <td>${formatDateISOToDMY(r.fecha_apertura)}</td>
-        <td>${formatTime(r.hora_apertura)}</td>
-        <td>${formatDateISOToDMY(r.fecha_cierre)}</td>
-        <td>${formatTime(r.hora_cierre)}</td>
-        <td>${formatCurrencyCLP(r.monto_inicial)}</td>
-        <td>${formatCurrencyCLP(r.total_efectivo)}</td>
-        <td>${formatCurrencyCLP(r.total_tarjeta)}</td>
-        <td>${formatCurrencyCLP(r.total_general || ((parseFloat(r.total_efectivo || 0)) + (parseFloat(r.total_tarjeta || 0))))}</td>
-        <td>${r.estado}</td>
-        <td>${r.fue_arqueada ? 'Sí' : 'No'}</td>
-        <td class="text-end">
-          <button class="btn btn-sm btn-outline-primary me-1 btn-edit" data-id="${r.id}">Editar</button>
-          <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${r.id}">Borrar</button>
-        </td>
-      </tr>
-    `;
+          <tr data-id="${r.id}">
+            <td>${r.numero_caja}</td>
+            <td>
+              <strong>A:</strong> ${r.id_usuario_apertura}<br>
+              <strong>C:</strong> ${r.id_usuario_cierre || '-'}
+            </td>
+            <td>
+              <strong>A:</strong> ${formatDateISOToDMY(r.fecha_apertura)} ${formatTime(r.hora_apertura)}<br>
+              <strong>C:</strong> ${formatDateISOToDMY(r.fecha_cierre)} ${formatTime(r.hora_cierre)}
+            </td>
+            <td>${formatCurrencyCLP(r.monto_inicial)}</td>
+            <td>
+              Efectivo: ${formatCurrencyCLP(r.total_efectivo)}<br>
+              Tarjeta: ${formatCurrencyCLP(r.total_tarjeta)}<br>
+              <strong>Total:</strong> ${formatCurrencyCLP(totalGeneral)}
+            </td>
+            <td>
+              <span class="badge bg-${r.estado === 'abierta' ? 'warning' : 'success'}">${r.estado}</span><br>
+              <small>${r.fue_arqueada ? 'Arqueada' : 'No arqueada'}</small>
+            </td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-primary me-1 btn-edit" data-id="${r.id}"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn btn-sm btn-danger btn-delete" data-id="${r.id}"><i class="fa-solid fa-trash-can"></i></button>
+            </td>
+          </tr>
+        `;
         });
 
         if (registros.length === 0) {
-            html += `<tr><td colspan="8" class="text-center text-muted">No hay registros</td></tr>`;
+            html += `<tr><td colspan="7" class="text-center text-muted">No hay registros</td></tr>`;
         }
 
         html += '</tbody></table>';
@@ -119,17 +117,17 @@ export async function loadAperturasCierresPage(page = currentPage) {
         // Paginación
         const totalPages = Math.max(1, Math.ceil(total / pageSize));
         const paginationHtml = `
-      <div class="d-flex justify-content-between align-items-center">
-        <div><small>Página ${currentPage} de ${totalPages} — Total: ${total}</small></div>
-        <div>
-          <button class="btn btn-sm btn-outline-secondary me-1" id="prev-page" ${currentPage === 1 ? 'disabled' : ''}>«</button>
-          <button class="btn btn-sm btn-outline-secondary" id="next-page" ${currentPage === totalPages ? 'disabled' : ''}>»</button>
+        <div class="d-flex justify-content-between align-items-center">
+          <div><small>Página ${currentPage} de ${totalPages} — Total: ${total}</small></div>
+          <div>
+            <button class="btn btn-sm btn-outline-secondary me-1" id="prev-page" ${currentPage === 1 ? 'disabled' : ''}>«</button>
+            <button class="btn btn-sm btn-outline-secondary" id="next-page" ${currentPage === totalPages ? 'disabled' : ''}>»</button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-        document.getElementById('pagination-aperturas-cierres').innerHTML = paginationHtml;
         container.innerHTML = html;
+        document.getElementById('pagination-aperturas-cierres').innerHTML = paginationHtml;
 
         // Eventos paginación
         document.getElementById('prev-page').addEventListener('click', () => {
@@ -139,7 +137,7 @@ export async function loadAperturasCierresPage(page = currentPage) {
             if (currentPage < totalPages) loadAperturasCierresPage(currentPage + 1);
         });
 
-        // Delegación botones editar / borrar
+        // Botones editar/borrar
         container.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', () => openAperturaModal(btn.dataset.id));
         });
@@ -159,6 +157,7 @@ export async function loadAperturasCierresPage(page = currentPage) {
         container.innerHTML = `<p class="text-danger">Error cargando datos: ${err.message}</p>`;
     }
 }
+
 
 async function openAperturaModal(id = null) {
     const form = document.getElementById('aperturaForm');

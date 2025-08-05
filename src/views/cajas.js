@@ -63,8 +63,8 @@ export async function loadCajasPage(page = currentPage) {
                 <td>${c.estado}</td>
                 <td>${c.descripcion || '-'}</td>
                 <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary me-1 btn-edit" data-id="${c.id}">Editar</button>
-                    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${c.id}">Borrar</button>
+                    <button class="btn btn-sm btn-primary me-1 btn-edit" data-id="${c.id}"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn btn-sm btn-danger btn-delete" data-id="${c.id}"><i class="fa-solid fa-trash-can"></i></button>
                 </td>
             </tr>
             `;

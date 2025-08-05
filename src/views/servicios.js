@@ -68,8 +68,8 @@ export async function loadServicios(page = 1) {
           <td>${formatCurrencyCLP(s.precio)}</td>
           <td>${s.estado}</td>
           <td class="text-end">
-            <button class="btn btn-sm btn-outline-primary me-1 btn-edit" data-id="${s.id}">Editar</button>
-            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${s.id}">Borrar</button>
+            <button class="btn btn-sm btn-primary me-1 btn-edit" data-id="${s.id}"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="btn btn-sm btn-danger btn-delete" data-id="${s.id}"><i class="fa-solid fa-trash-can"></i></button>
           </td>
         </tr>
       `;
