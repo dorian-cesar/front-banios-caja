@@ -1,6 +1,9 @@
 import { getCurrentUser } from '../utils/session.js';
 import { usuariosService } from '../api/usuariosService.js';
 import { movimientosService } from '../api/movimientosService.js';
+import { helpersService } from '../api/helpersService.js';
+import { serviciosService } from '../api/serviciosService.js';
+import { cajasService } from '../api/cajasService.js';
 import { showAlert } from '../components/alerts.js';
 import { getSantiagoDateParts } from '../utils/helpers.js';
 import { renderDonaMediosPago } from '../components/charts.js';
@@ -43,81 +46,27 @@ function parseMontoNormalizado(value) {
     return num;
 }
 
-
-function calcularIngresosPorPeriodo(movimientos, periodo) {
-    const ahora = new Date();
-    const hoyParts = getSantiagoDateParts(ahora);
-
-    return movimientos.reduce((total, mov) => {
-        const movFecha = new Date(mov.fecha_creacion || mov.fecha || mov.fechaCreacion);
-        const movParts = getSantiagoDateParts(movFecha);
-        const monto = parseMontoNormalizado(mov.monto);
-
-        let coincide = false;
-
-        switch (periodo) {
-            case 'dia':
-                coincide = isSameSantiagoDayParts(movParts, hoyParts);
-                break;
-
-            case 'semana': {
-                const semanaMov = getWeekNumber(movFecha);
-                const semanaActual = getWeekNumber(ahora);
-                coincide = (movParts.year === hoyParts.year) && (semanaMov === semanaActual);
-                break;
-            }
-
-            case 'mes':
-                coincide = (movParts.year === hoyParts.year) && (movParts.month === hoyParts.month);
-                break;
-
-            case 'ano':
-                coincide = (movParts.year === hoyParts.year);
-                break;
-        }
-
-        return coincide ? total + monto : total;
-    }, 0);
-}
-
-
 async function actualizarDashboard() {
     try {
-        const [usuariosResp, movimientosResp] = await Promise.all([
-            usuariosService.list({ page: 1, pageSize: 10 }),
-            movimientosService.list({ page: 1, pageSize: 1000 }),
-        ]);
 
-        // Totales básicos
-        document.getElementById('card-total-usuarios').textContent = usuariosResp.total;
-        document.getElementById('card-total-movimientos').textContent = movimientosResp.total;
+        const resumen = await helpersService.getResumen();
 
-        const sumaRaw = movimientosResp.data.reduce((t, m) => {
-            const raw = typeof m.monto === 'string'
-                ? parseFloat(String(m.monto).replace(/\./g, '').replace(/,/g, '.'))
-                : m.monto;
-            return t + (isNaN(raw) ? 0 : raw);
-        }, 0);
-        const sumaNormalizada = movimientosResp.data.reduce((t, m) => t + parseMontoNormalizado(m.monto), 0);
-        console.log("Suma normalizada:", sumaNormalizada);
+        document.getElementById('card-total-servicios').textContent = resumen.totalServicios;
+        document.getElementById('card-total-cajas').textContent = resumen.totalCajas;
+        document.getElementById('card-total-usuarios').textContent = resumen.totalUsuarios;
+        document.getElementById('card-total-movimientos').textContent = resumen.totalMovimientos;
 
-        // Ingresos por periodos
-        const ingresosDia = calcularIngresosPorPeriodo(movimientosResp.data, 'dia');
-        const ingresosSemana = calcularIngresosPorPeriodo(movimientosResp.data, 'semana');
-        const ingresosMes = calcularIngresosPorPeriodo(movimientosResp.data, 'mes');
-        const ingresosAno = calcularIngresosPorPeriodo(movimientosResp.data, 'ano');
 
-        document.getElementById('card-ingresos-dia').textContent = 'CLP ' + ingresosDia.toLocaleString('es-CL');
-        document.getElementById('card-ingresos-semana').textContent = 'CLP ' + ingresosSemana.toLocaleString('es-CL');
-        document.getElementById('card-ingresos-mes').textContent = 'CLP ' + ingresosMes.toLocaleString('es-CL');
-        document.getElementById('card-ingresos-ano').textContent = 'CLP ' + ingresosAno.toLocaleString('es-CL');
+        document.getElementById('card-ingresos-dia').textContent = 'CLP ' + resumen.totalGananciasHoy.TOTAL;
+        document.getElementById('card-ingresos-semana').textContent = 'CLP ' + resumen.totalGananciasSemana.TOTAL;
+        document.getElementById('card-ingresos-mes').textContent = 'CLP ' + resumen.totalGananciasMes.TOTAL;
+        document.getElementById('card-ingresos-ano').textContent = 'CLP ' + resumen.totalGananciasAnio.TOTAL;
 
         // Distribución por método de pago
-        const mediosPago = {};
-        movimientosResp.data.forEach(mov => {
-            const medio = mov.medio_pago || 'DESCONOCIDO';
-            mediosPago[medio] = (mediosPago[medio] || 0) + parseMontoNormalizado(mov.monto);
-        });
+        const mediosPago = {
+            EFECTIVO: resumen.totalGanancias.EFECTIVO || 0,
+            TARJETA: resumen.totalGanancias.TARJETA || 0
+        };
 
         console.log("Distribución por medios de pago:", mediosPago);
         renderDonaMediosPago(document.getElementById('chart-medios-pago'), mediosPago);

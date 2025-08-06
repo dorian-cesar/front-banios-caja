@@ -1,6 +1,7 @@
 import { cajasService } from '../api/cajasService.js';
 import { showAlert } from '../components/alerts.js';
 import { debounce } from '../utils/helpers.js';
+import { exportToCSV } from '../utils/export.js';
 
 let currentPage = 1;
 const pageSize = 10;
@@ -11,6 +12,7 @@ const cajaModal = new bootstrap.Modal(document.getElementById('cajaModal'));
 
 export function initCajasView() {
     document.getElementById('btn-create-caja').addEventListener('click', () => openCajaModal());
+    document.getElementById('btn-export-cajas').addEventListener('click', () => exportCajas());
     document.getElementById('btn-search-cajas').addEventListener('click', () => {
         const input = document.getElementById('search-cajas');
         currentSearch = input.value.trim();
@@ -176,4 +178,29 @@ async function openCajaModal(id = null) {
     }
 
     cajaModal.show();
+}
+
+async function exportCajas() {
+
+    try {
+        const res = await cajasService.list({
+            page: 1,
+            pageSize: 10,
+            search: ''
+        });
+
+        const cajas = res.data;
+
+        const csvData = cajas.map(c => ({
+            Número: c.numero_caja,
+            Nombre: c.nombre,
+            Ubicación: c.ubicacion,
+            Estado: c.estado
+        }));
+
+        exportToCSV(csvData, 'cajas.csv');
+    } catch (err) {
+        showAlert('Error exprotando cajas: ' + err.message, 'danger');
+    }
+
 }

@@ -1,6 +1,7 @@
 import { usuariosService } from '../api/usuariosService.js';
 import { showAlert } from '../components/alerts.js';
 import { debounce, isValidEmail } from '../utils/helpers.js'
+import { exportToCSV } from '../utils/export.js';
 
 let currentPage = 1;
 const pageSize = 10;
@@ -10,6 +11,7 @@ const userModal = new bootstrap.Modal(document.getElementById('userModal'));
 
 export function initUsuariosView() {
     document.getElementById('btn-create-user').addEventListener('click', () => openUserModal());
+    document.getElementById('btn-export-users').addEventListener('click', () => exportUsuarios());
 
     document.getElementById('btn-search-users').addEventListener('click', () => {
         currentSearch = document.getElementById('search-users').value.trim();
@@ -211,4 +213,27 @@ async function openUserModal(id = null) {
     }
 
     userModal.show();
+}
+
+async function exportUsuarios() {
+    try {
+        const resp = await usuariosService.list({
+            page: 1,
+            pageSize: 100,
+            search: ''
+        });
+
+        const usuarios = resp.data;
+
+        const csvData = usuarios.map(u => ({
+            ID: u.id,
+            Usuario: u.username,
+            Email: u.email,
+            Rol: u.role
+        }));
+
+        exportToCSV(csvData, 'usuarios.csv');
+    } catch (err) {
+        showAlert('Error exportando usuarios: ' + err.message, 'danger');
+    }
 }

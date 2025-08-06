@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    console.log("sesion autorizada")
+    console.log("Sesión Autorizada")
 
     views.forEach(v => v.classList.remove('active'));
 

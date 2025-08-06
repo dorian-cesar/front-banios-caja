@@ -1,7 +1,7 @@
+import { initExportModal } from '../components/exportModal.js';
+import { exportToCSV } from '../utils/export.js';
 import { movimientosService } from '../api/movimientosService.js';
-import { usuariosService } from '../api/usuariosService.js';
-import { serviciosService } from '../api/serviciosService.js';
-import { cajasService } from '../api/cajasService.js';
+import { helpersService } from '../api/helpersService.js';
 import { showAlert } from '../components/alerts.js';
 import {
     debounce,
@@ -13,10 +13,42 @@ import {
 let currentPage = 1;
 const pageSize = 10;
 let currentSearch = '';
+let exportModal;
 
 const movimientoModal = new bootstrap.Modal(document.getElementById('movimientoModal'));
 
 export function initMovimientosView() {
+
+    exportModal = initExportModal({
+        onExport: async (filters) => {
+            const res = await movimientosService.list({
+                page: 1,
+                pageSize: 1000,
+                ...filters,
+            });
+
+            const csvData = res.data.map(m => ({
+                ID: m.id || "-",
+                Fecha: m.fecha ? m.fecha.split('T')[0] : "-",
+                Hora: m.hora || "-",
+                Usuario: m.nombre_usuario || "-",
+                Servicio: m.nombre_servicio || "-",
+                Caja: m.numero_caja || "-",
+                Monto: m.monto || "-",
+                Medio: m.medio_pago || "-",
+                Código: m.codigo || "-"
+            }));
+
+            exportToCSV(csvData, 'movimientos.csv');
+        },
+        viewType: 'movimientos' // Especificamos el tipo de vista
+    });
+
+    document.getElementById('btn-exportar-movimientos').addEventListener('click', async () => {
+        const metadata = await helpersService.getData();
+        exportModal.show(metadata);
+    });
+
     document
         .getElementById('btn-create-movimiento')
         .addEventListener('click', () => openMovimientoModal());
@@ -39,37 +71,34 @@ export function initMovimientosView() {
 async function populateSelects() {
     // Usuarios
     try {
-        const uResp = await usuariosService.list({ page: 1, pageSize: 100 });
-        const selectU = document.getElementById('movimiento-id_usuario');
-        selectU.innerHTML = uResp.data
-            .map(u => `<option value="${u.id}">${u.username}</option>`)
-            .join('');
-    } catch {
-        showAlert('No se pudieron cargar usuarios', 'warning');
-    }
+        const data = await helpersService.getData();
 
-    // Servicios
-    try {
-        const sResp = await serviciosService.list({ page: 1, pageSize: 100 });
-        const selectS = document.getElementById('movimiento-id_servicio');
-        selectS.innerHTML = sResp.data
-            .map(s => `<option value="${s.id}">${s.nombre}</option>`)
-            .join('');
-    } catch {
-        showAlert('No se pudieron cargar servicios', 'warning');
-    }
+        const selectUsuarios = document.getElementById('movimiento-id_usuario');
+        selectUsuarios.innerHTML = data.usuarios.map(u =>
+            `<option value="${u.id}">${u.nombre}</option>`).join('');
 
-    // Cajas
-    try {
-        const cResp = await cajasService.list({ page: 1, pageSize: 100 });
-        const selectC = document.getElementById('movimiento-numero_caja');
-        selectC.innerHTML = cResp.data
-            .map(c => `<option value="${c.numero_caja}">${c.nombre} (${c.numero_caja})</option>`)
-            .join('');
-    } catch {
-        showAlert('No se pudieron cargar cajas', 'warning');
+        // Servicios
+        const selectServicios = document.getElementById('movimiento-id_servicio');
+        selectServicios.innerHTML = data.servicios.map(s =>
+            `<option value="${s.id}">${s.nombre}</option>`).join('');
+
+        // Cajas
+        const selectCajas = document.getElementById('movimiento-numero_caja');
+        selectCajas.innerHTML = data.cajas.map(c =>
+            `<option value="${c.numero_caja}">${c.nombre} (${c.numero_caja})</option>`).join('');
+
+        // medios de pago
+        const selectMedioPago = document.getElementById('movimiento-medio_pago');
+        if (selectMedioPago && data.mediosPago) {
+            selectMedioPago.innerHTML = data.mediosPago.map(mp =>
+                `<option value="${mp}">${mp}</option>`).join('');
+        }
+
+    } catch (error) {
+        showAlert('No se pudieron cargar los datos', 'danger');
     }
 }
+
 
 export async function loadMovimientos(page = 1) {
     currentPage = page;
@@ -96,7 +125,7 @@ export async function loadMovimientos(page = 1) {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Caja / A/C</th>
+            <th>Caja</th>
             <th>Usuario / Servicio</th>
             <th>Monto / Medio</th>
             <th>Fechas</th>
@@ -112,8 +141,7 @@ export async function loadMovimientos(page = 1) {
         <tr data-id="${m.id}">
           <td>${m.id}</td>
           <td>
-            Caja: ${m.numero_caja}<br>
-            A/C: ${m.id_aperturas_cierres}
+            Caja: ${m.numero_caja}
           </td>
           <td>
             <strong>Usuario:</strong> ${m.nombre_usuario}<br>

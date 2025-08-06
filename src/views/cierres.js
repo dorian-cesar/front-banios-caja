@@ -1,44 +1,86 @@
 import { aperturasCierresService } from '../api/aperturasCierresService.js';
-import { usuariosService } from '../api/usuariosService.js';
-import { cajasService } from '../api/cajasService.js';
+import { helpersService } from '../api/helpersService.js';
 import { showAlert } from '../components/alerts.js';
 import { debounce, formatDateISOToDMY, formatTime, formatCurrencyCLP } from '../utils/helpers.js';
-
+import { initExportModal } from '../components/exportModal.js';
+import { exportToCSV } from '../utils/export.js';
 
 let currentPage = 1;
 const pageSize = 10;
 let currentSearch = '';
+let exportModal;
 const aperturaModal = new bootstrap.Modal(document.getElementById('aperturaModal'));
 
-async function populateAperturaCierreSelects() {
-    // Cajas
+async function populateAperturaFormSelects() {
     try {
-        const cResp = await cajasService.list({ page: 1, pageSize: 10 });
-        const selectCaja = document.getElementById('numero-caja');
-        selectCaja.innerHTML = cResp.data
-            .map(c => `<option value="${c.numero_caja}">${c.nombre} (${c.numero_caja})</option>`)
-            .join('');
-        selectCaja.insertAdjacentHTML('afterbegin', '<option value="">Selecciona caja...</option>');
-    } catch {
-        showAlert('No se pudieron cargar cajas', 'warning');
-    }
+        const data = await helpersService.getData({ page: 1, pageSize: 100 });
 
-    // Usuarios (apertura y cierre)
-    try {
-        const uResp = await usuariosService.list({ page: 1, pageSize: 10 });
-        const usersOptions = uResp.data
-            .map(u => `<option value="${u.id}">${u.username}</option>`)
-            .join('');
-        const selectApertura = document.getElementById('id-usuario-apertura');
-        const selectCierre = document.getElementById('id-usuario-cierre');
-        selectApertura.innerHTML = '<option value="">Selecciona usuario...</option>' + usersOptions;
-        selectCierre.innerHTML = '<option value="">(Opcional)</option>' + usersOptions;
-    } catch {
-        showAlert('No se pudieron cargar usuarios', 'warning');
+        const usuarioAperturaSelect = document.getElementById('id-usuario-apertura');
+        const usuarioCierreSelect = document.getElementById('id-usuario-cierre');
+        const cajaSelect = document.getElementById('numero-caja');
+
+        // Limpiar selects antes de volver a cargar
+        [usuarioAperturaSelect, usuarioCierreSelect, cajaSelect].forEach(select => {
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+        });
+
+        // Cargar usuarios
+        data.usuarios.forEach(u => {
+            const option = `<option value="${u.id}">${u.nombre}</option>`;
+            usuarioAperturaSelect.insertAdjacentHTML('beforeend', option);
+            usuarioCierreSelect.insertAdjacentHTML('beforeend', option);
+        });
+
+        // Cargar cajas
+        data.cajas.forEach(c => {
+            const option = `<option value="${c.numero_caja}">${c.nombre} (${c.numero_caja})</option>`;
+            cajaSelect.insertAdjacentHTML('beforeend', option);
+        });
+
+    } catch (err) {
+        console.error('Error cargando selects del modal de creación:', err);
     }
 }
 
+
 export function initAperturasCierresView() {
+
+    exportModal = initExportModal({
+        onExport: async (filters) => {
+            const res = await aperturasCierresService.list({
+                page: 1,
+                pageSize: 1000,
+                ...filters,
+            });
+
+            const csvData = res.data.map(a => ({
+                ID: a.id || "-",
+                Caja: a.numero_caja || "-",
+                UsuarioApertura: a.nombre_usuario_apertura || "-",
+                UsuarioCierre: a.nombre_usuario_cierre || "-",
+                FechaApertura: a.fecha_apertura ? a.fecha_apertura.split('T')[0] : "-",
+                HoraApertura: a.hora_apertura || "-",
+                FechaCierre: a.fecha_cierre ? a.fecha_cierre.split('T')[0] : "-",
+                HoraCierre: a.hora_cierre || "-",
+                MontoInicial: a.monto_inicial || "-",
+                Efectivo: a.total_efectivo || "-",
+                Tarjeta: a.total_tarjeta || "-",
+                Observaciones: a.observaciones || "-",
+                Estado: a.estado || "-"
+            }));
+
+            exportToCSV(csvData, 'AperturasCierres.csv');
+        },
+        viewType: 'cierres' // Especificamos el tipo de vista
+    });
+
+    document.getElementById('btn-export-aperturas').addEventListener('click', async () => {
+        const metadata = await helpersService.getData();
+        exportModal.show(metadata);
+    });
+
     document.getElementById('btn-create-apertura').addEventListener('click', async () => await openAperturaModal());
     document.getElementById('btn-search-aperturas').addEventListener('click', () => {
         const input = document.getElementById('search-aperturas');
@@ -83,8 +125,8 @@ export async function loadAperturasCierresPage(page = currentPage) {
           <tr data-id="${r.id}">
             <td>${r.numero_caja}</td>
             <td>
-              <strong>A:</strong> ${r.id_usuario_apertura}<br>
-              <strong>C:</strong> ${r.id_usuario_cierre || '-'}
+              <strong>A:</strong> ${r.nombre_usuario_apertura}<br>
+              <strong>C:</strong> ${r.nombre_usuario_cierre || '-'}
             </td>
             <td>
               <strong>A:</strong> ${formatDateISOToDMY(r.fecha_apertura)} ${formatTime(r.hora_apertura)}<br>
@@ -165,7 +207,7 @@ async function openAperturaModal(id = null) {
     document.getElementById('apertura-id').value = '';
     document.getElementById('aperturaModalTitle').textContent = id ? 'Editar Apertura/Cierre' : 'Nueva Apertura/Cierre';
 
-    await populateAperturaCierreSelects();
+    await populateAperturaFormSelects();
 
     if (id) {
         try {
@@ -253,5 +295,100 @@ async function handleSaveAperturaCierre(e) {
         loadAperturasCierresPage(1);
     } catch (err) {
         showAlert('Error guardando registro: ' + err.message, 'danger');
+    }
+}
+
+function setupExportModal() {
+    // Eliminar modal existente si hay uno
+    const existingModal = document.getElementById('modalExportar');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Crear nuevo modal
+    createExportModal();
+
+    const modalElement = document.getElementById('modalExportar');
+    const modalInstance = new bootstrap.Modal(modalElement, {
+        backdrop: true,
+        keyboard: true
+    });
+
+    // Configurar el botón de exportación
+    document.getElementById('btn-export-aperturas').addEventListener('click', async () => {
+        await populateExportFilters();
+        modalInstance.show();
+    });
+
+    document.addEventListener('submit', async (e) => {
+        if (e.target.id !== 'formExportar') return;
+        e.preventDefault();
+
+        const data = new FormData(e.target);
+        const filters = Object.fromEntries(data.entries());
+
+        try {
+            const res = await aperturasCierresService.list({
+                page: 1,
+                pageSize: 1000,
+                ...filters,
+            });
+
+            const csvData = res.data.map(a => ({
+                ID: a.id,
+                Caja: a.nombre_caja,
+                UsuarioApertura: a.nombre_usuario_apertura,
+                UsuarioCierre: a.nombre_usuario_cierre,
+                FechaApertura: a.fecha_apertura.split('T')[0],
+                HoraApertura: a.hora_apertura,
+                FechaCierre: a.fecha_cierre,
+                HoraCierre: a.hora_cierre,
+                MontoInicial: a.monto_inicial,
+                Efectivo: a.total_efectivo,
+                Tarjeta: a.total_tarjeta,
+                Observaciones: a.observaciones || "-",
+                Estado: a.estado
+            }));
+
+            exportToCSV(csvData, 'AperturasCierres.csv');
+
+            // Cerrar el modal usando la instancia existente
+            if (modalInstance) {
+                modalInstance.hide();
+
+                // Limpiar el backdrop manualmente si es necesario
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                if (backdrops.length > 1) {
+                    backdrops.forEach(backdrop => backdrop.remove());
+                }
+            }
+        } catch (err) {
+            showAlert('Error al exportar: ' + err.message, 'danger');
+        }
+    });
+}
+async function populateExportFilters() {
+    const usuarioSelect = document.getElementById('filtroUsuario');
+    const cajaSelect = document.getElementById('filtroCaja');
+
+    usuarioSelect.innerHTML = `<option value="">Todos</option>`;
+    cajaSelect.innerHTML = `<option value="">Todas</option>`;
+
+    try {
+        const metadata = await helpersService.getData();
+
+        // Usuarios
+        metadata.usuarios.forEach(usuario => {
+            usuarioSelect.innerHTML += `<option value="${usuario.id}">${usuario.nombre}</option>`;
+        });
+
+        // Cajas
+        metadata.cajas.forEach(caja => {
+            cajaSelect.innerHTML += `<option value="${caja.numero_caja}">${caja.nombre} (${caja.numero_caja})</option>`;
+        });
+
+    } catch (err) {
+        console.error(err);
+        showAlert('Error cargando filtros de exportación', 'warning');
     }
 }

@@ -1,6 +1,7 @@
 import { serviciosService } from '../api/serviciosService.js';
 import { showAlert } from '../components/alerts.js';
 import { debounce, formatCurrencyCLP } from '../utils/helpers.js';
+import { exportToCSV } from '../utils/export.js';
 
 let currentPage = 1;
 const pageSize = 10;
@@ -9,6 +10,8 @@ let currentSearch = '';
 const servicioModal = new bootstrap.Modal(document.getElementById('servicioModal'));
 
 export function initServiciosView() {
+  document.getElementById('btn-export-servicios').addEventListener('click', () => exportServicios());
+
   document
     .getElementById('btn-create-servicio')
     .addEventListener('click', () => openServicioModal());
@@ -207,4 +210,28 @@ async function openServicioModal(id = null) {
     document.getElementById('servicioModalTitle').textContent = 'Crear servicio';
   }
   servicioModal.show();
+}
+
+async function exportServicios() {
+  try {
+    const resp = await serviciosService.list({
+      page: 1,
+      pageSize: 10,
+      search: ''
+    });
+
+    const servicios = resp.data;
+
+    const csvData = servicios.map(s => ({
+      ID: s.id,
+      Nombre: s.nombre,
+      Tipo: s.tipo,
+      Precio: s.precio,
+      Estado: s.estado
+    }));
+
+    exportToCSV(csvData, 'servicios.csv');
+  } catch (err) {
+    showAlert('Error exportando servicios: ' + err.message, 'danger');
+  }
 }
