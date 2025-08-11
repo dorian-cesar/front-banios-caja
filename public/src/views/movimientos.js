@@ -19,6 +19,7 @@ const movimientoModal = new bootstrap.Modal(document.getElementById('movimientoM
 
 export function initMovimientosView() {
 
+    populateFilterSelects().catch(err => showAlert('Error cargando filtros: ' + err.message, 'danger'));
     exportModal = initExportModal({
         onExport: async (filters) => {
             const res = await movimientosService.list({
@@ -52,20 +53,55 @@ export function initMovimientosView() {
     document
         .getElementById('btn-create-movimiento')
         .addEventListener('click', () => openMovimientoModal());
-    document
-        .getElementById('btn-search-movimientos')
-        .addEventListener('click', () => {
-            const input = document.getElementById('search-movimientos');
-            currentSearch = input.value.trim();
+
+    document.getElementById('btn-search-movimientos').addEventListener('click', () => {
+        currentPage = 1;
+        loadMovimientos(currentPage);
+    });
+
+    ['filter-usuario', 'filter-caja', 'filter-servicio', 'filter-medio_pago'].forEach(id => {
+        const select = document.getElementById(id);
+        select.addEventListener('change', () => {
             currentPage = 1;
             loadMovimientos(currentPage);
         });
+    });
 
     document
         .getElementById('movimientoForm')
         .addEventListener('submit', handleSaveMovimiento);
 
     loadMovimientos(1);
+}
+
+async function populateFilterSelects() {
+    try {
+        const data = await helpersService.getData();
+
+        const usuarioFilter = document.getElementById('filter-usuario');
+        usuarioFilter.innerHTML = `<option value="">Todos los usuarios</option>` +
+            data.usuarios.map(u => `<option value="${u.id}">${u.nombre}</option>`).join('');
+
+        const cajaFilter = document.getElementById('filter-caja');
+        cajaFilter.innerHTML = `<option value="">Todas las cajas</option>` +
+            data.cajas.map(c => `<option value="${c.numero_caja}">${c.nombre} (${c.numero_caja})</option>`).join('');
+
+        const servicioFilter = document.getElementById('filter-servicio');
+        servicioFilter.innerHTML = `<option value="">Todos los servicios</option>` +
+            data.servicios.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('');
+
+        // Medio de pago fijo
+        const medioPagoFilter = document.getElementById('filter-medio_pago');
+        medioPagoFilter.innerHTML = `
+        <option value="">Todos los medios</option>
+        <option value="EFECTIVO">Efectivo</option>
+        <option value="TARJETA">Tarjeta</option>
+        <option value="OTRO">Otro</option>
+      `;
+
+    } catch (err) {
+        showAlert('Error cargando filtros', 'danger');
+    }
 }
 
 async function populateSelects() {
@@ -100,13 +136,31 @@ async function populateSelects() {
 }
 
 
+let currentFilters = {
+    id_usuario: '',
+    numero_caja: '',
+    id_servicio: '',
+    medio_pago: '',
+    search: ''
+};
+
 export async function loadMovimientos(page = 1) {
     currentPage = page;
     const container = document.getElementById('table-movimientos');
+
+    currentFilters.id_usuario = document.getElementById('filter-usuario').value;
+    currentFilters.numero_caja = document.getElementById('filter-caja').value;
+    currentFilters.id_servicio = document.getElementById('filter-servicio').value;
+    currentFilters.medio_pago = document.getElementById('filter-medio_pago').value;
+
+    // Mantener el input búsqueda sólo para código (o texto libre)
+    currentFilters.search = document.getElementById('search-movimientos').value.trim();
+
     try {
         const resp = await movimientosService.list({
             page: currentPage,
             pageSize,
+            ...currentFilters,
         });
         let movimientos = resp.data;
         const total = resp.total;
@@ -116,7 +170,9 @@ export async function loadMovimientos(page = 1) {
             movimientos = movimientos.filter(
                 m =>
                     (m.codigo && m.codigo.toLowerCase().includes(term)) ||
-                    String(m.id_usuario).includes(term)
+                    (m.nombre_usuario && m.nombre_usuario.toLowerCase().includes(term)) ||
+                    (m.nombre_servicio && m.nombre_servicio.toLowerCase().includes(term)) ||
+                    (m.nombre_caja && m.nombre_caja.toLowerCase().includes(term))
             );
         }
 
@@ -141,7 +197,7 @@ export async function loadMovimientos(page = 1) {
         <tr data-id="${m.id}">
           <td>${m.id}</td>
           <td>
-            Caja: ${m.numero_caja}
+            ${m.nombre_caja}
           </td>
           <td>
             <strong>Usuario:</strong> ${m.nombre_usuario}<br>

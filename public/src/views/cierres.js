@@ -47,6 +47,8 @@ async function populateAperturaFormSelects() {
 
 export function initAperturasCierresView() {
 
+    populateFilterSelects().catch(err => showAlert('Error cargando filtros: ' + err.message, 'danger'));
+
     exportModal = initExportModal({
         onExport: async (filters) => {
             const res = await aperturasCierresService.list({
@@ -82,12 +84,20 @@ export function initAperturasCierresView() {
     });
 
     document.getElementById('btn-create-apertura').addEventListener('click', async () => await openAperturaModal());
+
     document.getElementById('btn-search-aperturas').addEventListener('click', () => {
-        const input = document.getElementById('search-aperturas');
-        currentSearch = input.value.trim();
         currentPage = 1;
         loadAperturasCierresPage();
     });
+
+    ['filter-usuario-cierre', 'filter-fecha-apertura', 'filter-fecha-cierre', 'filter-estado']
+        .forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                currentPage = 1;
+                loadAperturasCierresPage();
+            });
+        });
+
 
     document.getElementById('aperturaForm').addEventListener('submit', handleSaveAperturaCierre);
     loadAperturasCierresPage();
@@ -99,7 +109,13 @@ export async function loadAperturasCierresPage(page = currentPage) {
     const container = document.getElementById('table-aperturas-cierres');
 
     try {
-        const resp = await aperturasCierresService.list({ page: currentPage, pageSize, search: currentSearch });
+        const filters = getAperturasFilters();
+        const resp = await aperturasCierresService.list({
+            page: currentPage,
+            pageSize,
+            ...filters
+        });
+
         const registros = resp.data;
         const total = resp.total;
 
@@ -123,7 +139,7 @@ export async function loadAperturasCierresPage(page = currentPage) {
             const totalGeneral = (parseFloat(r.total_efectivo || 0) + parseFloat(r.total_tarjeta || 0));
             html += `
           <tr data-id="${r.id}">
-            <td>${r.numero_caja}</td>
+            <td>${r.nombre_caja}</td>
             <td>
               <strong>A:</strong> ${r.nombre_usuario_apertura}<br>
               <strong>C:</strong> ${r.nombre_usuario_cierre || '-'}
@@ -390,5 +406,37 @@ async function populateExportFilters() {
     } catch (err) {
         console.error(err);
         showAlert('Error cargando filtros de exportación', 'warning');
+    }
+}
+
+
+function getAperturasFilters() {
+    return {
+        search: document.getElementById('search-aperturas').value.trim(),
+        id_usuario: document.getElementById('filter-usuario-cierre').value || '',
+        fecha_inicio: document.getElementById('filter-fecha-apertura').value || '',
+        fecha_fin: document.getElementById('filter-fecha-cierre').value || '',
+        estado: document.getElementById('filter-estado').value || ''
+    };
+}
+
+
+async function populateFilterSelects() {
+    try {
+        const data = await helpersService.getData();
+
+        const usuarioFilter = document.getElementById('filter-usuario-cierre');
+        usuarioFilter.innerHTML = `<option value="">Todos los usuarios</option>` +
+            data.usuarios.map(u => `<option value="${u.id}">${u.nombre}</option>`).join('');
+
+        const medioPagoFilter = document.getElementById('filter-estado');
+        medioPagoFilter.innerHTML = `
+            <option value="">Todos los estados</option>
+            <option value="ABIERTA">Abierta</option>
+            <option value="CERRADA">Cerrada</option>
+      `;
+
+    } catch (err) {
+        showAlert('Error cargando filtros', 'danger');
     }
 }

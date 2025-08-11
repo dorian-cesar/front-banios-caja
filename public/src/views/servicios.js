@@ -10,7 +10,9 @@ let currentSearch = '';
 const servicioModal = new bootstrap.Modal(document.getElementById('servicioModal'));
 
 export function initServiciosView() {
-  document.getElementById('btn-export-servicios').addEventListener('click', () => exportServicios());
+  const btnExport = document.getElementById('btn-export-servicios');
+  btnExport.removeEventListener('click', exportServicios); // quita si ya había
+  btnExport.addEventListener('click', exportServicios);
 
   document
     .getElementById('btn-create-servicio')

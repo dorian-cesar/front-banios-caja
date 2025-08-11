@@ -460,19 +460,54 @@
                 </div>
 
                 <div class="card table-container">
-                    <div class="toolbar d-flex justify-content-between align-items-center">
-                        <div class="d-flex gap-2">
+                    <div class="toolbar">
+                        <div class="d-flex gap-2 align-items-center mb-2">
                             <div class="search-container">
                                 <i class="bi bi-search search-icon"></i>
                                 <input type="text" id="search-movimientos" class="form-control"
                                     placeholder="Buscar por código de movimiento..." />
                             </div>
 
-                            <button id="btn-search-movimientos" class="btn btn-outline-primary btn-icon">
+                            <button id="btn-search-movimientos" class="btn btn-primary btn-icon">
                                 <i class="bi bi-search"></i>
                                 Buscar
                             </button>
                         </div>
+
+                        <div class="d-flex gap-2 mb-2 flex-nowrap">
+                            <div class="d-flex flex-column flex-fill" style="min-width: 150px;">
+                                <label for="filter-usuario" class="small mb-1">Usuario</label>
+                                <select id="filter-usuario" class="form-select form-select-sm w-100">
+                                    <option value="">Todos los usuarios</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex flex-column flex-fill" style="min-width: 150px;">
+                                <label for="filter-caja" class="small mb-1">Caja</label>
+                                <select id="filter-caja" class="form-select form-select-sm w-100">
+                                    <option value="">Todas las cajas</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex flex-column flex-fill" style="min-width: 150px;">
+                                <label for="filter-servicio" class="small mb-1">Servicio</label>
+                                <select id="filter-servicio" class="form-select form-select-sm w-100">
+                                    <option value="">Todos los servicios</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex flex-column flex-fill" style="min-width: 150px;">
+                                <label for="filter-medio_pago" class="small mb-1">Medio de Pago</label>
+                                <select id="filter-medio_pago" class="form-select form-select-sm w-100">
+                                    <option value="">Todos los medios</option>
+                                    <option value="EFECTIVO">Efectivo</option>
+                                    <option value="TARJETA">Tarjeta</option>
+                                    <option value="OTRO">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+
                         <div class="d-flex gap-2">
                             <button id="btn-create-movimiento" class="btn btn-primary btn-icon">
                                 <i class="bi bi-plus-lg"></i>
@@ -484,6 +519,7 @@
                             </button>
                         </div>
                     </div>
+
 
                     <div id="table-movimientos">
                         <div class="p-4">
@@ -718,19 +754,51 @@
                 </div>
 
                 <div class="card table-container">
-                    <div class="toolbar d-flex justify-content-between align-items-center">
-                        <div class="d-flex gap-2">
+                    <div class="toolbar">
+                        <div class="d-flex gap-2 align-items-center mb-2">
                             <div class="search-container">
                                 <i class="bi bi-search search-icon"></i>
                                 <input id="search-aperturas" class="form-control"
-                                    placeholder="Buscar por ID caja, usuario o estado..." />
+                                    placeholder="Buscar por caja, usuario o estado..." />
                             </div>
 
-                            <button id="btn-search-aperturas" class="btn btn-outline-primary btn-icon">
+                            <button id="btn-search-aperturas" class="btn btn-primary btn-icon">
                                 <i class="bi bi-search"></i>
                                 Buscar
                             </button>
                         </div>
+                        <div class="d-flex gap-2 mb-2 flex-nowrap">
+                            <div class="d-flex flex-column flex-fill" style="min-width: 150px;">
+                                <label for="filter-usuario-cierre" class="small mb-1">Usuario</label>
+                                <select id="filter-usuario-cierre" class="form-select form-select-sm w-100">
+                                    <option value="">Todos los usuarios</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex flex-column flex-fill" style="min-width: 150px;">
+                                <label for="filter-fecha-apertura" class="small mb-1">Desde</label>
+                                <input type="date" id="filter-fecha-apertura"
+                                    class="form-control form-control-sm w-100">
+                            </div>
+
+                            <div class="d-flex flex-column flex-fill" style="min-width: 150px;">
+                                <label for="filter-fecha-cierre" class="small mb-1">Hasta</label>
+                                <input type="date" id="filter-fecha-cierre" class="form-control form-control-sm w-100">
+                            </div>
+
+                            <div class="d-flex flex-column flex-fill" style="min-width: 150px;">
+                                <label for="filter-estado" class="small mb-1">Estado</label>
+                                <select id="filter-estado" class="form-select form-select-sm w-100">
+                                    <option value="">Todos los estados</option>
+                                    <option value="ABIERTA">Abierta</option>
+                                    <option value="CERRADA">Cerrada</option>
+                                </select>
+
+                            </div>
+                        </div>
+
+
+
                         <div class="d-flex gap-2">
                             <button id="btn-create-apertura" class="btn btn-primary btn-icon">
                                 <i class="bi bi-plus-lg"></i>

@@ -2,6 +2,7 @@ import { usuariosService } from '../api/usuariosService.js';
 import { showAlert } from '../components/alerts.js';
 import { debounce, isValidEmail } from '../utils/helpers.js'
 import { exportToCSV } from '../utils/export.js';
+import { getCurrentUser } from '../utils/session.js';
 
 let currentPage = 1;
 const pageSize = 10;
@@ -11,7 +12,11 @@ const userModal = new bootstrap.Modal(document.getElementById('userModal'));
 
 export function initUsuariosView() {
     document.getElementById('btn-create-user').addEventListener('click', () => openUserModal());
-    document.getElementById('btn-export-users').addEventListener('click', () => exportUsuarios());
+    
+    const btnExport = document.getElementById('btn-export-users');
+    btnExport.removeEventListener('click', exportUsuarios); // quita si ya había
+    btnExport.addEventListener('click', exportUsuarios);
+
 
     document.getElementById('btn-search-users').addEventListener('click', () => {
         currentSearch = document.getElementById('search-users').value.trim();
@@ -25,7 +30,6 @@ export function initUsuariosView() {
 }
 
 export async function loadUsuariosPage(page = currentPage) {
-    console.log("usuarios")
     currentPage = page;
     const container = document.getElementById('table-usuarios');
     try {
@@ -36,6 +40,8 @@ export async function loadUsuariosPage(page = currentPage) {
         });
         const usuarios = resp.data;
         const total = resp.total;
+
+        const currentUser = getCurrentUser();
 
         // Construir tabla
         let html = `
@@ -53,6 +59,7 @@ export async function loadUsuariosPage(page = currentPage) {
     `;
 
         usuarios.forEach(u => {
+            const isCurrentUser = currentUser && u.id === currentUser.id;
             html += `
         <tr data-id="${u.id}">
           <td>${u.id}</td>
@@ -61,7 +68,10 @@ export async function loadUsuariosPage(page = currentPage) {
           <td>${u.role}</td>
           <td class="text-end">
             <button class="btn btn-sm btn-primary me-1 btn-edit" data-id="${u.id}"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button class="btn btn-sm btn-danger btn-delete" data-id="${u.id}"><i class="fa-solid fa-trash-can"></i></button>
+                        ${isCurrentUser
+                    ? ''
+                    : `<button class="btn btn-sm btn-danger btn-delete" data-id="${u.id}"><i class="fa-solid fa-trash-can"></i></button>`
+                }
           </td>
         </tr>
       `;
