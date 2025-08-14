@@ -8,8 +8,7 @@ export const metadata = {
 
 export default function DashboardLayout({ children }) {
     return (
-      <div className="flex h-screen bg-gray-100">
-        {/* Sidebar */}
+      <div className="flex h-screen">
         <Sidebar />
   
         {/* Contenido principal */}

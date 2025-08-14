@@ -14,8 +14,7 @@ export default function HomePage() {
 
         <button
           onClick={() => router.push("/login")}
-          className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-        >
+          className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
           Iniciar Sesión
         </button>
 

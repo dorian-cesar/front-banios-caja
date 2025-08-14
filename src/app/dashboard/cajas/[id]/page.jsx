@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { cajaService } from '@/services/caja.service';
+import { FormSkeleton } from '@/components/skeletons';
 
 export default function EditCajaPage() {
   const router = useRouter();
@@ -38,39 +40,77 @@ export default function EditCajaPage() {
     }
   };
 
-  if (loading) return <p>Cargando...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
-  if (!form) return <p>Caja no encontrada</p>;
+  if (loading) return <FormSkeleton />;
+  if (error) return <p className="text-red-600 p-3">{error}</p>;
+  if (!form) return <p className="text-gray-600 p-3">Caja no encontrada</p>;
 
   return (
-    <div>
-      <h1>Editar Caja {form.nombre}</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
+    <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">Editar Caja {form.nombre}</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label>Número:</label>
-          <input name="numero_caja" value={form.numero_caja} onChange={handleChange} required />
+          <label className="block text-gray-700 font-medium mb-1">Número:</label>
+          <input
+            name="numero_caja"
+            value={form.numero_caja}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
         </div>
+
         <div>
-          <label>Nombre:</label>
-          <input name="nombre" value={form.nombre} onChange={handleChange} required />
+          <label className="block text-gray-700 font-medium mb-1">Nombre:</label>
+          <input
+            name="nombre"
+            value={form.nombre}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
         </div>
+
         <div>
-          <label>Ubicación:</label>
-          <input name="ubicacion" value={form.ubicacion || ''} onChange={handleChange} />
+          <label className="block text-gray-700 font-medium mb-1">Ubicación:</label>
+          <input
+            name="ubicacion"
+            value={form.ubicacion || ''}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
         </div>
+
         <div>
-          <label>Estado:</label>
-          <select name="estado" value={form.estado} onChange={handleChange}>
+          <label className="block text-gray-700 font-medium mb-1">Estado:</label>
+          <select
+            name="estado"
+            value={form.estado}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
             <option value="activa">Activa</option>
             <option value="inactiva">Inactiva</option>
           </select>
         </div>
+
         <div>
-          <label>Descripción:</label>
-          <textarea name="descripcion" value={form.descripcion || ''} onChange={handleChange} />
+          <label className="block text-gray-700 font-medium mb-1">Descripción:</label>
+          <textarea
+            name="descripcion"
+            value={form.descripcion || ''}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            rows={4}
+          />
         </div>
-        <button type="submit">Actualizar</button>
+
+        <div className="flex justify-center space-x-10 mt-6">
+          <Link href="/dashboard/cajas" className="bg-red-500 text-white font-semibold px-6 py-2 rounded-md hover:bg-red-800 transition">Cancelar</Link>
+          <button type="submit" className="bg-blue-500 text-white font-semibold px-6 py-2 rounded-md hover:bg-blue-800 transition">
+            Actualizar
+          </button>
+        </div>
       </form>
     </div>
   );

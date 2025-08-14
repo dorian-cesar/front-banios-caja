@@ -1,6 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { TableSkeleton } from '@/components/skeletons';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { userService } from '@/services/user.service';
 
 export default function UsersPage() {
@@ -31,65 +33,100 @@ export default function UsersPage() {
   }, [page, search]);
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Seguro quieres eliminar este usuario?')) return;
+    if (!confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) return;
     try {
       await userService.delete(id);
       fetchUsers();
     } catch (err) {
-      alert(err.message || 'Error al eliminar usuario');
+      setError(err.message || 'Error al eliminar usuario');
     }
   };
 
   return (
-    <div>
-      <h1>Usuarios</h1>
-      <input
-        type="text"
-        placeholder="Buscar por username, email o role..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <Link href="/dashboard/users/new">Nuevo Usuario</Link>
-      {loading && <p>Cargando...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-bold text-gray-800">Gestión de Usuarios</h1>
+        <Link
+          href="/dashboard/users/new"
+          className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
+        >
+          Nuevo Usuario
+        </Link>
+      </div>
+
+      {/* Barra de búsqueda */}
+      <div>
+        <input
+          type="text"
+          placeholder="Buscar por username, email o role..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-4 w-full max-w-sm rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
+
+      {loading && <TableSkeleton rows={5} cols={5} />}
+      {error && <p className="text-red-500 p-3 bg-red-50 rounded-lg">{error}</p>}
+
       {!loading && !error && (
-        <>
-          <table>
-            <thead>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
+            <thead className="bg-gray-100">
               <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Acciones</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Username</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Rol</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100 bg-white">
               {users.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.id}</td>
-                  <td>{u.username}</td>
-                  <td>{u.email}</td>
-                  <td>{u.role}</td>
-                  <td>
-                    <a href={`/dashboard/users/${u.id}`}>Editar</a>{' '}
-                    <button onClick={() => handleDelete(u.id)}>Eliminar</button>
+                <tr key={u.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2">{u.id}</td>
+                  <td className="px-4 py-2">{u.username}</td>
+                  <td className="px-4 py-2">{u.email}</td>
+                  <td className="px-4 py-2 capitalize">{u.role}</td>
+                  <td className="px-4 py-2 space-x-2 flex">
+                    <Link
+                      href={`/dashboard/users/${u.id}`}
+                      className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
+                    >
+                      <PencilSquareIcon className="h-5 w-5 inline" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(u.id)}
+                      className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
+                    >
+                      <TrashIcon className="h-5 w-5 inline" />
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div>
-            <button disabled={page <= 1} onClick={() => setPage(page - 1)}>
+          {/* Paginación */}
+          <div className="mt-4 flex items-center justify-center space-x-4">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage(page - 1)}
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+            >
               Anterior
             </button>
-            <span> Página {page} </span>
-            <button disabled={page * pageSize >= total} onClick={() => setPage(page + 1)}>
+            <span className="text-gray-700">
+              Página {page} de {Math.ceil(total / pageSize)}
+            </span>
+            <button
+              disabled={page * pageSize >= total}
+              onClick={() => setPage(page + 1)}
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+            >
               Siguiente
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

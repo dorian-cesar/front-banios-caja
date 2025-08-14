@@ -1,74 +1,80 @@
+"use client";
+import { useState } from "react";
 import Link from 'next/link';
+import {
+    HomeIcon,
+    UsersIcon,
+    ComputerDesktopIcon,
+    WrenchScrewdriverIcon,
+    ArrowsRightLeftIcon,
+    LockOpenIcon,
+    Bars3Icon,
+    ChevronLeftIcon
+} from '@heroicons/react/24/outline';
 
 function Sidebar() {
+    const [open, setOpen] = useState(true);
+
     return (
-        <aside className="w-64 min-h-screen bg-gradient-to-b from-blue-50 to-white border-r border-gray-200 flex flex-col p-6">
-            <div className="mb-8">
-                <h2 className="text-2xl font-bold text-blue-800 mb-1">Panel de Control</h2>
-                <div className="w-12 h-1 bg-blue-500 rounded-full"></div>
+        <aside className={`${open ? "w-64" : "w-20"} min-h-screen bg-gradient-to-b from-blue-50 to-white border-r border-gray-200 flex flex-col p-4 transition-all duration-300`}>
+            <div className={`flex items-center mb-8 ${open ? "justify-between" : "justify-center"}`}>
+                {open && <h2 className="text-2xl font-bold text-blue-800">Navegación</h2>}
+                <button
+                    onClick={() => setOpen(!open)}
+                    className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
+                >
+                    {open ? <ChevronLeftIcon className="h-5 w-5" /> : <Bars3Icon className="h-5 w-5" />}
+                </button>
             </div>
 
+
             <nav className="flex-1">
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                     <li>
-                        <Link
-                            href="/dashboard"
-                            className="flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group"
-                        >
-                            <span className="w-2 h-5 bg-blue-500 rounded-full mr-3 group-hover:w-3 transition-all duration-300"></span>
-                            <span>Inicio</span>
+                        <Link href="/dashboard" className={`flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group ${!open ? "justify-center" : ""}`}>
+                            <HomeIcon className={`h-5 w-5 text-blue-500 ${open ? "mr-3" : ""}`} />
+                            {open && <span>Inicio</span>}
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            href="/dashboard/users"
-                            className="flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group"
-                        >
-                            <span className="w-2 h-5 bg-blue-500 rounded-full mr-3 group-hover:w-3 transition-all duration-300"></span>
-                            <span>Usuarios</span>
+                        <Link href="/dashboard/users" className={`flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group ${!open ? "justify-center" : ""}`}>
+                            <UsersIcon className={`h-5 w-5 text-blue-500 ${open ? "mr-3" : ""}`} />
+                            {open && <span>Usuarios</span>}
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            href="/dashboard/cajas"
-                            className="flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group"
-                        >
-                            <span className="w-2 h-5 bg-blue-500 rounded-full mr-3 group-hover:w-3 transition-all duration-300"></span>
-                            <span>Cajas</span>
+                        <Link href="/dashboard/cajas" className={`flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group ${!open ? "justify-center" : ""}`}>
+                            <ComputerDesktopIcon className={`h-5 w-5 text-blue-500 ${open ? "mr-3" : ""}`} />
+                            {open && <span>Cajas</span>}
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            href="/dashboard/servicios"
-                            className="flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group"
-                        >
-                            <span className="w-2 h-5 bg-blue-500 rounded-full mr-3 group-hover:w-3 transition-all duration-300"></span>
-                            <span>Servicios</span>
+                        <Link href="/dashboard/servicios" className={`flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group ${!open ? "justify-center" : ""}`}>
+                            <WrenchScrewdriverIcon className={`h-5 w-5 text-blue-500 ${open ? "mr-3" : ""}`} />
+                            {open && <span>Servicios</span>}
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            href="/dashboard/movimientos"
-                            className="flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group"
-                        >
-                            <span className="w-2 h-5 bg-blue-500 rounded-full mr-3 group-hover:w-3 transition-all duration-300"></span>
-                            <span>Movimientos</span>
+                        <Link href="/dashboard/movimientos" className={`flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group ${!open ? "justify-center" : ""}`}>
+                            <ArrowsRightLeftIcon className={`h-5 w-5 text-blue-500 ${open ? "mr-3" : ""}`} />
+                            {open && <span>Movimientos</span>}
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            href="/dashboard/cierres"
-                            className="flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group"
-                        >
-                            <span className="w-2 h-5 bg-blue-500 rounded-full mr-3 group-hover:w-3 transition-all duration-300"></span>
-                            <span>Aperturas y Cierres</span>
+                        <Link href="/dashboard/cierres" className={`flex items-center p-3 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 group ${!open ? "justify-center" : ""}`}>
+                            <LockOpenIcon className={`h-5 w-5 text-blue-500 ${open ? "mr-3" : ""}`} />
+                            {open && <span>Aperturas y Cierres</span>}
                         </Link>
                     </li>
                 </ul>
             </nav>
 
-            <div className="mt-auto pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-500">Versión 1.0.0</p>
+            <div className={`mt-auto pt-4 border-t border-gray-200 ${!open && "text-center"}`}>
+                {open ? (
+                    <p className="text-sm text-gray-500">Versión 1.0.0</p>
+                ) : (
+                    <p className="text-xs text-gray-500">v1.0.0</p>
+                )}
             </div>
         </aside>
     );

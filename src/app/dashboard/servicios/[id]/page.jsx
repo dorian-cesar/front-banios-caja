@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { serviceService } from '@/services/service.service';
+import { FormSkeleton7 } from '@/components/skeletons';
+import { formatNumber } from '@/utils/helper';
 
 export default function EditServicePage() {
     const router = useRouter();
@@ -19,7 +22,10 @@ export default function EditServicePage() {
                     serviceService.getById(id),
                     serviceService.listTipos()
                 ]);
-                setForm(service);
+                setForm({
+                    ...service,
+                    precio: formatNumber(service.precio)
+                });
                 setTipos(tiposList);
             } catch (err) {
                 setError(err.message || 'Error al cargar servicio');
@@ -43,41 +49,115 @@ export default function EditServicePage() {
         }
     };
 
-    if (loading) return <p>Cargando...</p>;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
-    if (!form) return <p>Servicio no encontrado</p>;
+    const handleDelete = async () => {
+        if (!confirm('¿Estás seguro de eliminar este servicio? Esta acción no se puede deshacer.')) return;
+        try {
+            await serviceService.delete(id);
+            router.push('/dashboard/servicios');
+        } catch (err) {
+            setError(err.message || 'Error al eliminar servicio');
+        }
+    };
+
+    if (loading) return <FormSkeleton7 />;
+    if (error) return <p className="text-red-600 p-4 bg-red-50 rounded-lg">{error}</p>;
+    if (!form) return <p className="text-gray-600 p-4">Servicio no encontrado</p>;
 
     return (
-        <div>
-            <h1>Editar Servicio {form.nombre}</h1>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
+        <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-gray-800">Editar Servicio: {form.nombre}</h1>
+                <button
+                    onClick={handleDelete}
+                    className="bg-red-500 text-white font-semibold px-4 py-2 rounded-md hover:bg-red-600 transition"
+                >
+                    Eliminar Servicio
+                </button>
+            </div>
+
+            {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label>Nombre:</label>
-                    <input name="nombre" value={form.nombre} onChange={handleChange} required />
+                    <label className="block text-gray-700 font-medium mb-1">Nombre:</label>
+                    <input
+                        name="nombre"
+                        value={form.nombre}
+                        onChange={handleChange}
+                        required
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
                 </div>
-                <div>
-                    <label>Tipo:</label>
-                    <select name="tipo" value={form.tipo} onChange={handleChange}>
-                        {tipos.map((t) => <option key={t} value={t}>{t}</option>)}
-                    </select>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-1">Tipo:</label>
+                        <select
+                            name="tipo"
+                            value={form.tipo}
+                            onChange={handleChange}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 capitalize"
+                        >
+                            {tipos.map((t) => (
+                                <option key={t} value={t} className="capitalize">
+                                    {t.toLowerCase()}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-1">Precio ($):</label>
+                        <input
+                            type="number"
+                            step="1"
+                            name="precio"
+                            value={form.precio}
+                            onChange={handleChange}
+                            required
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
                 </div>
+
                 <div>
-                    <label>Precio:</label>
-                    <input type="number" step="0.01" name="precio" value={form.precio} onChange={handleChange} required />
+                    <label className="block text-gray-700 font-medium mb-1">Descripción:</label>
+                    <textarea
+                        name="descripcion"
+                        value={form.descripcion || ''}
+                        onChange={handleChange}
+                        rows={4}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
                 </div>
+
                 <div>
-                    <label>Descripción:</label>
-                    <textarea name="descripcion" value={form.descripcion || ''} onChange={handleChange}></textarea>
-                </div>
-                <div>
-                    <label>Estado:</label>
-                    <select name="estado" value={form.estado} onChange={handleChange}>
+                    <label className="block text-gray-700 font-medium mb-1">Estado:</label>
+                    <select
+                        name="estado"
+                        value={form.estado}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 capitalize"
+                    >
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
                     </select>
                 </div>
-                <button type="submit">Actualizar</button>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                    <Link
+                        href="/dashboard/servicios"
+                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
+                    >
+                        Cancelar
+                    </Link>
+                    <button
+                        type="submit"
+                        className="bg-blue-500 text-white font-semibold px-6 py-2 rounded-md hover:bg-blue-600 transition"
+                    >
+                        Guardar Cambios
+                    </button>
+                </div>
             </form>
         </div>
     );

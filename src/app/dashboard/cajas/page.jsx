@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { cajaService } from '@/services/caja.service';
+import { TableSkeleton } from '@/components/skeletons';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 export default function CajasPage() {
   const [cajas, setCajas] = useState([]);
@@ -34,64 +36,82 @@ export default function CajasPage() {
     if (!confirm('¿Seguro quieres eliminar esta caja?')) return;
     try {
       await cajaService.delete(id);
-      fetchCajas(); // recargar
+      fetchCajas();
     } catch (err) {
       alert(err.message || 'Error al eliminar la caja');
     }
   };
 
   return (
-    <div>
-      <h1>Cajas</h1>
-      <input
-        type="text"
-        placeholder="Buscar..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <Link href="/dashboard/cajas/new">Nueva Caja</Link>
-      {loading && <p>Cargando...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-bold text-gray-800">Cajas</h1>
+        <Link href="/dashboard/cajas/new" className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition">
+          Nueva Caja
+        </Link>
+      </div>
+
+      <input type="text" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4 w-full max-w-sm rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+
+      {loading && <TableSkeleton rows={3} cols={6} />}
+      {error && <p className="text-red-500">{error}</p>}
+
       {!loading && !error && (
-        <>
-          <table>
-            <thead>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
+            <thead className="bg-gray-100">
               <tr>
-                <th>ID</th>
-                <th>Número</th>
-                <th>Nombre</th>
-                <th>Ubicación</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Número</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Nombre</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Ubicación</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Estado</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100 bg-white">
               {cajas.map((caja) => (
-                <tr key={caja.id}>
-                  <td>{caja.id}</td>
-                  <td>{caja.numero_caja}</td>
-                  <td>{caja.nombre}</td>
-                  <td>{caja.ubicacion}</td>
-                  <td>{caja.estado}</td>
-                  <td>
-                    <Link href={`/dashboard/cajas/${caja.id}`}>Editar</Link>{' '}
-                    <button onClick={() => handleDelete(caja.id)}>Eliminar</button>
+                <tr key={caja.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2">{caja.id}</td>
+                  <td className="px-4 py-2">{caja.numero_caja}</td>
+                  <td className="px-4 py-2">{caja.nombre}</td>
+                  <td className="px-4 py-2">{caja.ubicacion}</td>
+                  <td className="px-4 py-2">{caja.estado}</td>
+                  <td className="px-4 py-2 space-x-2 flex">
+                    <Link href={`/dashboard/cajas/${caja.id}`}
+                      className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center">
+                      <PencilSquareIcon className="h-5 w-5 inline" />
+                    </Link>
+                    <button onClick={() => handleDelete(caja.id)}
+                      className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center">
+                      <TrashIcon className="h-5 w-5 inline" />
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div>
-            <button disabled={page <= 1} onClick={() => setPage(page - 1)}>
+          <div className="mt-4 flex items-center justify-center space-x-4">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage(page - 1)}
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-500 disabled:opacity-50"
+            >
               Anterior
             </button>
-            <span> Página {page} </span>
-            <button disabled={page * pageSize >= total} onClick={() => setPage(page + 1)}>
+            <span>
+              Página {page} de {Math.ceil(total / pageSize)}
+            </span>
+            <button
+              disabled={page * pageSize >= total}
+              onClick={() => setPage(page + 1)}
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-500 disabled:opacity-50"
+            >
               Siguiente
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
