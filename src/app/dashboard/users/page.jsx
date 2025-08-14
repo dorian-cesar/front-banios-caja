@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { TableSkeleton } from '@/components/skeletons';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { userService } from '@/services/user.service';
+import { getCurrentUser } from '@/utils/session';
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -42,6 +43,8 @@ export default function UsersPage() {
     }
   };
 
+  const currentUser = getCurrentUser();
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
@@ -58,7 +61,7 @@ export default function UsersPage() {
       <div>
         <input
           type="text"
-          placeholder="Buscar por username, email o role..."
+          placeholder="Buscar por username, email o rol..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="mb-4 w-full max-w-sm rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -94,12 +97,14 @@ export default function UsersPage() {
                     >
                       <PencilSquareIcon className="h-5 w-5 inline" />
                     </Link>
-                    <button
-                      onClick={() => handleDelete(u.id)}
-                      className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
-                    >
-                      <TrashIcon className="h-5 w-5 inline" />
-                    </button>
+                    {u.id !== currentUser.id && (
+                      <button
+                        onClick={() => handleDelete(u.id)}
+                        className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
+                      >
+                        <TrashIcon className="h-5 w-5 inline" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

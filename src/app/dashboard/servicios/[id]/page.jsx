@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { serviceService } from '@/services/service.service';
 import { FormSkeleton7 } from '@/components/skeletons';
 import { formatNumber } from '@/utils/helper';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function EditServicePage() {
     const router = useRouter();
@@ -14,6 +15,7 @@ export default function EditServicePage() {
     const [form, setForm] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -27,8 +29,21 @@ export default function EditServicePage() {
                     precio: formatNumber(service.precio)
                 });
                 setTipos(tiposList);
+
+                showNotification({
+                    type: "success",
+                    title: "Datos cargados",
+                    message: "La información del servicio se ha cargado correctamente",
+                    duration: 3000
+                });
             } catch (err) {
                 setError(err.message || 'Error al cargar servicio');
+                showNotification({
+                    type: "error",
+                    title: "Error",
+                    message: err.message || 'Error al cargar servicio',
+                    duration: 5000
+                });
             } finally {
                 setLoading(false);
             }
@@ -43,19 +58,52 @@ export default function EditServicePage() {
         setError(null);
         try {
             await serviceService.update(id, form);
+            showNotification({
+                type: "success",
+                title: "Servicio actualizado",
+                message: "Los cambios se han guardado correctamente",
+                duration: 4000
+            });
             router.push('/dashboard/servicios');
         } catch (err) {
             setError(err.message || 'Error al actualizar servicio');
+            showNotification({
+                type: "error",
+                title: "Error al guardar",
+                message: err.message || 'Error al actualizar servicio',
+                duration: 5000
+            });
         }
     };
 
     const handleDelete = async () => {
-        if (!confirm('¿Estás seguro de eliminar este servicio? Esta acción no se puede deshacer.')) return;
+        if (!confirm('¿Estás seguro de eliminar este servicio? Esta acción no se puede deshacer.')) {
+            showNotification({
+                type: "info",
+                title: "Cancelado",
+                message: "La eliminación fue cancelada",
+                duration: 3000
+            });
+            return;
+        }
+
         try {
             await serviceService.delete(id);
+            showNotification({
+                type: "success",
+                title: "Servicio eliminado",
+                message: "El servicio se ha eliminado correctamente",
+                duration: 4000
+            });
             router.push('/dashboard/servicios');
         } catch (err) {
             setError(err.message || 'Error al eliminar servicio');
+            showNotification({
+                type: "error",
+                title: "Error al eliminar",
+                message: err.message || 'Error al eliminar servicio',
+                duration: 5000
+            });
         }
     };
 

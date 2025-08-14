@@ -51,7 +51,7 @@ export default function CajasPage() {
         </Link>
       </div>
 
-      <input type="text" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4 w-full max-w-sm rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+      <input type="text" placeholder="Buscar por numero o nombre..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4 w-full max-w-sm rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
 
       {loading && <TableSkeleton rows={3} cols={6} />}
       {error && <p className="text-red-500">{error}</p>}

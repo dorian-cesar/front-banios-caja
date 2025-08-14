@@ -1,4 +1,4 @@
-import { getToken } from "@/utils/session";
+import { getToken, clearSession } from "@/utils/session";
 
 export class ApiClient {
   constructor({ baseUrl = '' } = {}) {
@@ -6,32 +6,34 @@ export class ApiClient {
   }
 
   async request(path, { method = 'GET', params = {}, body = null } = {}) {
+    if (!path.startsWith('/')) path = '/' + path;
 
-    if (!path.startsWith('/')) {
-      path = '/' + path;
-    }
-
-    // Construir URL con parámetros
     const url = new URL(this.baseUrl + path);
     Object.entries(params || {}).forEach(([k, v]) => {
       if (v !== undefined && v !== null) url.searchParams.set(k, v);
     });
 
-    // Configuración de la request
     const opts = {
       method,
       headers: { 'Content-Type': 'application/json' }
     };
 
-    // Token si existe
     const token = getToken();
     if (token) opts.headers['Authorization'] = `Bearer ${token}`;
 
-    // Cuerpo JSON si aplica
     if (body) opts.body = JSON.stringify(body);
 
-    // Llamada
     const res = await fetch(url.toString(), opts);
+
+    // Si no autorizado
+    if (res.status === 401 || res.status === 403) {
+      clearSession();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+      throw new Error('Sesión expirada o token inválido');
+    }
+
     if (!res.ok) {
       let errorText;
       try {

@@ -31,7 +31,7 @@ export default function Navbar() {
 
                 <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg opacity-0 invisible scale-95 group-hover:opacity-100 group-hover:visible group-hover:scale-100 transform transition-all duration-200 origin-top-right z-10">
                     <Link
-                        href="/perfil"
+                        href="/dashboard/perfil"
                         className="block px-4 py-2 hover:bg-gray-300 transition rounded-t-lg">
                         Ver perfil
                     </Link>

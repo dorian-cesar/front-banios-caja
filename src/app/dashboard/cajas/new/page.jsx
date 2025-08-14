@@ -41,7 +41,7 @@ export default function NewCajaPage() {
                         onChange={handleChange}
                         required
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        placeholder="0"
+                        placeholder="Ej: 0"
                     />
                 </div>
 
@@ -53,7 +53,7 @@ export default function NewCajaPage() {
                         onChange={handleChange}
                         required
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        placeholder="Caja ejemplo"
+                        placeholder="Ej: Caja ejemplo"
                     />
                 </div>
 
@@ -65,7 +65,7 @@ export default function NewCajaPage() {
                         onChange={handleChange}
                         required
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        placeholder="Terminal ejemplo"
+                        placeholder="Ej: Terminal ejemplo"
                     />
                 </div>
 

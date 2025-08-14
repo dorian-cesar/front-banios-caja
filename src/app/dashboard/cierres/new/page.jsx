@@ -127,13 +127,13 @@ export default function NewCierrePage() {
                         onChange={handleChange}
                         required
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        placeholder="0"
+                        placeholder="Ej: 0"
                     />
                 </div>
                 <div className="flex justify-center space-x-10 mt-6">
                     <Link href="/dashboard/cierres" className="bg-red-500 text-white font-semibold px-6 py-2 rounded-md hover:bg-red-800 transition">Cancelar</Link>
                     <button type="submit" className="bg-blue-500 text-white font-semibold px-6 py-2 rounded-md hover:bg-blue-800 transition">
-                        Crear
+                        Crear Apertura
                     </button>
                 </div>
             </form>
