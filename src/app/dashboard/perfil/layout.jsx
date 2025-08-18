@@ -1,5 +1,5 @@
 export const metadata = {
-    title: 'Edición de usuario',
+    title: 'Edición de perfil',
     description: 'Gestión de baños',
 };
 

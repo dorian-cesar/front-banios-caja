@@ -26,6 +26,7 @@ export function saveSession(token, user) {
     localStorage.setItem('user', JSON.stringify(user));
 
     Cookies.set('token', token, { expires: 1 }); // 1 día
+    Cookies.set('role', user.role, { expires: 1 });
 }
 
 export function getToken() {

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { TableSkeleton } from '@/components/skeletons';
+import ExportCSVButton from "@/components/ExportCSVButton";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { userService } from '@/services/user.service';
 import { getCurrentUser } from '@/utils/session';
@@ -77,12 +78,20 @@ export default function UsersPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold text-gray-800">Gestión de Usuarios</h1>
-        <Link
-          href="/dashboard/users/new"
-          className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
-        >
-          Nuevo Usuario
-        </Link>
+        <div className="flex space-x-2">
+          <ExportCSVButton
+            filename="usuarios.csv"
+            filters={{ search }}
+            service={userService}
+          />
+
+          <Link
+            href="/dashboard/users/new"
+            className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
+          >
+            Nuevo Usuario
+          </Link>
+        </div>
       </div>
 
       {/* Barra de búsqueda */}
@@ -145,7 +154,7 @@ export default function UsersPage() {
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50 transition"
             >
               Anterior
             </button>
@@ -155,7 +164,7 @@ export default function UsersPage() {
             <button
               disabled={page * pageSize >= total}
               onClick={() => setPage(page + 1)}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50 transition"
             >
               Siguiente
             </button>

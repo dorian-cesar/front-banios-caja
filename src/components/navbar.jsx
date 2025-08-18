@@ -44,7 +44,7 @@ export default function Navbar() {
                             router.replace("/login");
                             router.refresh()
                         }}
-                        className="flex items-center w-full text-left px-4 py-2 hover:bg-gray-300 transition rounded-b-lg"
+                        className="flex items-center w-full text-left px-4 py-2 hover:bg-red-300 transition rounded-b-lg"
                     >
                         Cerrar sesión
                         <PowerIcon className="h-5 w-5 ml-2 text-gray-700" />

@@ -12,14 +12,23 @@ export default function HomePage() {
   useEffect(() => {
     const user = getCurrentUser();
     if (user && !isTokenExpired()) {
-      showNotification({
-        type: "success",
-        title: "Sesión Activa",
-        message: "Se redirigirá al dashboard",
-        duration: 3000
-      });
-      setLoading(true);
-      router.replace("/dashboard");
+      if (user.role?.toLowerCase() === "admin") {
+        showNotification({
+          type: "success",
+          title: "Sesión Activa",
+          message: "Se redirigirá al dashboard",
+          duration: 3000
+        });
+        setLoading(true);
+        router.replace("/dashboard");
+      } else {
+        showNotification({
+          type: "warning",
+          title: "Acceso restringido",
+          message: "No tienes permisos para acceder al dashboard",
+          duration: 5000
+        });
+      }
     }
   }, []);
 

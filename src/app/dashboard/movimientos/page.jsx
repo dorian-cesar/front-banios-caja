@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { TableSkeleton } from '@/components/skeletons';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { movimientoService } from '@/services/movimiento.service';
+import ExportCSVButton from "@/components/ExportCSVButton";
 import { helperService } from '@/services/helper.service';
 import { formatFecha, formatNumber } from '@/utils/helper';
 import { useNotification } from "@/contexts/NotificationContext";
@@ -116,82 +117,117 @@ export default function MovimientosPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold text-gray-800">Movimientos</h1>
-        <Link
-          href="/dashboard/movimientos/new"
-          className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
-        >
-          Nuevo Movimiento
-        </Link>
+        <div className="flex space-x-2">
+          <ExportCSVButton
+            filename="movimientos.csv"
+            filters={{ search, ...filtros }}
+            service={movimientoService}
+          />
+          <Link
+            href="/dashboard/movimientos/new"
+            className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
+          >
+            Nuevo Movimiento
+          </Link>
+        </div>
+
       </div>
 
       {/* Filtros */}
-      <div className="mb-4 flex flex-wrap gap-2">
-        <input
-          type="text"
-          placeholder="Buscar por código..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <select
-          name="id_usuario"
-          value={filtros.id_usuario}
-          onChange={handleFiltroChange}
-          className="px-3 py-2 border border-gray-300 rounded"
-        >
-          <option value="">Todos los usuarios</option>
-          {metadata.usuarios.map(u => (
-            <option key={u.id} value={u.id}>{u.nombre}</option>
-          ))}
-        </select>
-        <select
-          name="numero_caja"
-          value={filtros.numero_caja}
-          onChange={handleFiltroChange}
-          className="px-3 py-2 border border-gray-300 rounded"
-        >
-          <option value="">Todas las cajas</option>
-          {metadata.cajas.map(c => (
-            <option key={c.numero_caja} value={c.numero_caja}>{c.nombre}</option>
-          ))}
-        </select>
-        <select
-          name="id_servicio"
-          value={filtros.id_servicio}
-          onChange={handleFiltroChange}
-          className="px-3 py-2 border border-gray-300 rounded"
-        >
-          <option value="">Todos los servicios</option>
-          {metadata.servicios.map(s => (
-            <option key={s.id} value={s.id}>{s.nombre}</option>
-          ))}
-        </select>
-        <select
-          name="medio_pago"
-          value={filtros.medio_pago}
-          onChange={handleFiltroChange}
-          className="px-3 py-2 border border-gray-300 rounded"
-        >
-          <option value="">Todos los medios</option>
-          {metadata.mediosPago.map(m => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
-        <input
-          type="date"
-          name="fecha_inicio"
-          value={filtros.fecha_inicio}
-          onChange={handleFiltroChange}
-          className="px-3 py-2 border border-gray-300 rounded"
-        />
-        <input
-          type="date"
-          name="fecha_fin"
-          value={filtros.fecha_fin}
-          onChange={handleFiltroChange}
-          className="px-3 py-2 border border-gray-300 rounded"
-        />
+      <div className="mb-4 flex flex-wrap gap-4">
+        <div className="flex flex-col">
+          <label htmlFor="search" className="text-sm font-medium text-gray-700">Buscar</label>
+          <input
+            id="search"
+            type="text"
+            placeholder="Buscar por código..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="id_usuario" className="text-sm font-medium text-gray-700">Usuario</label>
+          <select
+            id="id_usuario"
+            name="id_usuario"
+            value={filtros.id_usuario}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          >
+            <option value="">Todos los usuarios</option>
+            {metadata.usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="numero_caja" className="text-sm font-medium text-gray-700">Caja</label>
+          <select
+            id="numero_caja"
+            name="numero_caja"
+            value={filtros.numero_caja}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          >
+            <option value="">Todas las cajas</option>
+            {metadata.cajas.map(c => <option key={c.numero_caja} value={c.numero_caja}>{c.nombre}</option>)}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="id_servicio" className="text-sm font-medium text-gray-700">Servicio</label>
+          <select
+            id="id_servicio"
+            name="id_servicio"
+            value={filtros.id_servicio}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          >
+            <option value="">Todos los servicios</option>
+            {metadata.servicios.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="medio_pago" className="text-sm font-medium text-gray-700">Medio de Pago</label>
+          <select
+            id="medio_pago"
+            name="medio_pago"
+            value={filtros.medio_pago}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          >
+            <option value="">Todos los medios</option>
+            {metadata.mediosPago.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="fecha_inicio" className="text-sm font-medium text-gray-700">Fecha Inicio</label>
+          <input
+            id="fecha_inicio"
+            type="date"
+            name="fecha_inicio"
+            value={filtros.fecha_inicio}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="fecha_fin" className="text-sm font-medium text-gray-700">Fecha Fin</label>
+          <input
+            id="fecha_fin"
+            type="date"
+            name="fecha_fin"
+            value={filtros.fecha_fin}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          />
+        </div>
       </div>
+
 
       {loading && <TableSkeleton rows={10} cols={10} />}
 
@@ -248,7 +284,7 @@ export default function MovimientosPage() {
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50 transition"
             >
               Anterior
             </button>
@@ -258,7 +294,7 @@ export default function MovimientosPage() {
             <button
               disabled={page * pageSize >= total}
               onClick={() => setPage(page + 1)}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50 transition"
             >
               Siguiente
             </button>

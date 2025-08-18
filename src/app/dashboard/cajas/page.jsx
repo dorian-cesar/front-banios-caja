@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { cajaService } from '@/services/caja.service';
 import { TableSkeleton } from '@/components/skeletons';
+import ExportCSVButton from "@/components/ExportCSVButton";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useNotification } from "@/contexts/NotificationContext";
 
@@ -74,9 +75,17 @@ export default function CajasPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold text-gray-800">Cajas</h1>
-        <Link href="/dashboard/cajas/new" className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition">
-          Nueva Caja
-        </Link>
+        <div className="flex space-x-2">
+          <ExportCSVButton 
+            filename="cajas.csv" 
+            filters={{ search }}
+            service={cajaService}
+          />
+          <Link href="/dashboard/cajas/new" className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition">
+            Nueva Caja
+          </Link>
+        </div>
+
       </div>
 
       <input type="text" placeholder="Buscar por numero o nombre..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4 w-full max-w-sm rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
@@ -123,7 +132,7 @@ export default function CajasPage() {
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-500 disabled:opacity-50"
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50"
             >
               Anterior
             </button>
@@ -133,7 +142,7 @@ export default function CajasPage() {
             <button
               disabled={page * pageSize >= total}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-500 disabled:opacity-50"
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50"
             >
               Siguiente
             </button>

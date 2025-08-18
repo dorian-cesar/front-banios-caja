@@ -39,28 +39,28 @@ export function CustomNotification(props) {
     const getIcon = () => {
         switch (type) {
             case "success":
-                return <CheckCircle className="h-5 w-5 text-green-500" />
+                return <CheckCircle className="h-5 w-5 text-green-600" />
             case "error":
-                return <AlertCircle className="h-5 w-5 text-red-500" />
+                return <AlertCircle className="h-5 w-5 text-red-600" />
             case "warning":
-                return <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                return <AlertTriangle className="h-5 w-5 text-yellow-600" />
             case "info":
             default:
-                return <Info className="h-5 w-5 text-blue-500" />
+                return <Info className="h-5 w-5 text-blue-600" />
         }
     }
 
     const getStyles = () => {
         switch (type) {
             case "success":
-                return "bg-green-50 border-green-200 text-green-800"
+                return "bg-green-100 border-green-200 text-green-800"
             case "error":
-                return "bg-red-50 border-red-200 text-red-800"
+                return "bg-red-100 border-red-200 text-red-800"
             case "warning":
-                return "bg-yellow-50 border-yellow-200 text-yellow-800"
+                return "bg-yellow-100 border-yellow-200 text-yellow-800"
             case "info":
             default:
-                return "bg-blue-50 border-blue-200 text-blue-800"
+                return "bg-blue-100 border-blue-200 text-blue-800"
         }
     }
 

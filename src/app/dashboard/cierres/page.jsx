@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { TableSkeleton } from '@/components/skeletons';
+import ExportCSVButton from "@/components/ExportCSVButton";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 import { cierreService } from '@/services/cierre.service';
@@ -108,43 +109,117 @@ export default function CierresPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold text-gray-800">Aperturas y Cierres</h1>
-        <Link
-          href={"/dashboard/cierres/new"}
-          className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
-        >
-          Nueva Apertura
-        </Link>
+        <div className="flex space-x-2">
+          <ExportCSVButton
+            filename="aperturas_cierres.csv"
+            filters={{ search }}
+            service={cierreService}
+          />
+          <Link
+            href={"/dashboard/cierres/new"}
+            className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
+          >
+            Nueva Apertura
+          </Link>
+        </div>
       </div>
 
       {/* Filtros */}
-      <div className="mb-4 flex flex-wrap gap-2">
-        <input
-          type="text"
-          placeholder="Buscar por usuario o caja..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <select name="id_usuario_apertura" value={filtros.id_usuario_apertura} onChange={handleFiltroChange} className="px-3 py-2 border border-gray-300 rounded">
-          <option value="">Usuario apertura</option>
-          {metadata.usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
-        </select>
-        <select name="id_usuario_cierre" value={filtros.id_usuario_cierre} onChange={handleFiltroChange} className="px-3 py-2 border border-gray-300 rounded">
-          <option value="">Usuario cierre</option>
-          {metadata.usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
-        </select>
-        <select name="numero_caja" value={filtros.numero_caja} onChange={handleFiltroChange} className="px-3 py-2 border border-gray-300 rounded">
-          <option value="">Caja</option>
-          {metadata.cajas.map(c => <option key={c.numero_caja} value={c.numero_caja}>{c.nombre}</option>)}
-        </select>
-        <select name="estado" value={filtros.estado} onChange={handleFiltroChange} className="px-3 py-2 border border-gray-300 rounded">
-          <option value="">Estado</option>
-          <option value="abierta">Abierta</option>
-          <option value="cerrada">Cerrada</option>
-        </select>
-        <input type="date" name="fecha_inicio" value={filtros.fecha_inicio} onChange={handleFiltroChange} className="px-3 py-2 border border-gray-300 rounded" />
-        <input type="date" name="fecha_fin" value={filtros.fecha_fin} onChange={handleFiltroChange} className="px-3 py-2 border border-gray-300 rounded" />
+      <div className="mb-4 flex flex-wrap gap-4">
+        <div className="flex flex-col">
+          <label htmlFor="search" className="text-sm font-medium text-gray-700">Buscar</label>
+          <input
+            id="search"
+            type="text"
+            placeholder="Buscar por usuario o caja..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="id_usuario_apertura" className="text-sm font-medium text-gray-700">Usuario Apertura</label>
+          <select
+            id="id_usuario_apertura"
+            name="id_usuario_apertura"
+            value={filtros.id_usuario_apertura}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          >
+            <option value="">Todos</option>
+            {metadata.usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="id_usuario_cierre" className="text-sm font-medium text-gray-700">Usuario Cierre</label>
+          <select
+            id="id_usuario_cierre"
+            name="id_usuario_cierre"
+            value={filtros.id_usuario_cierre}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          >
+            <option value="">Todos</option>
+            {metadata.usuarios.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="numero_caja" className="text-sm font-medium text-gray-700">Caja</label>
+          <select
+            id="numero_caja"
+            name="numero_caja"
+            value={filtros.numero_caja}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          >
+            <option value="">Todas</option>
+            {metadata.cajas.map(c => <option key={c.numero_caja} value={c.numero_caja}>{c.nombre}</option>)}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="estado" className="text-sm font-medium text-gray-700">Estado</label>
+          <select
+            id="estado"
+            name="estado"
+            value={filtros.estado}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          >
+            <option value="">Todos</option>
+            <option value="abierta">Abierta</option>
+            <option value="cerrada">Cerrada</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="fecha_inicio" className="text-sm font-medium text-gray-700">Apertura</label>
+          <input
+            id="fecha_inicio"
+            type="date"
+            name="fecha_inicio"
+            value={filtros.fecha_inicio}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="fecha_fin" className="text-sm font-medium text-gray-700">Cierre</label>
+          <input
+            id="fecha_fin"
+            type="date"
+            name="fecha_fin"
+            value={filtros.fecha_fin}
+            onChange={handleFiltroChange}
+            className="px-3 py-2 border border-gray-300 rounded"
+          />
+        </div>
       </div>
+
 
       {loading && <TableSkeleton rows={10} cols={10} />}
 
@@ -199,7 +274,7 @@ export default function CierresPage() {
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-500 disabled:opacity-50"
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50"
             >
               Anterior
             </button>
@@ -209,7 +284,7 @@ export default function CierresPage() {
             <button
               disabled={page * pageSize >= total}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-500 disabled:opacity-50"
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50"
             >
               Siguiente
             </button>

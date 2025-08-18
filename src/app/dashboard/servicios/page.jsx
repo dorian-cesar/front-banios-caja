@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { serviceService } from '@/services/service.service';
 import { TableSkeleton } from '@/components/skeletons';
+import ExportCSVButton from "@/components/ExportCSVButton";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { formatNumber } from '@/utils/helper';
 import { useNotification } from "@/contexts/NotificationContext";
@@ -78,12 +79,20 @@ export default function ServicesPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold text-gray-800">Servicios</h1>
-        <Link
-          href="/dashboard/servicios/new"
-          className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
-        >
-          Nuevo Servicio
-        </Link>
+        <div className="flex space-x-2">
+          <ExportCSVButton 
+            filename="servicios.csv" 
+            filters={{ search }}
+            service={serviceService}
+          />
+          <Link
+            href="/dashboard/servicios/new"
+            className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
+          >
+            Nuevo Servicio
+          </Link>
+        </div>
+
       </div>
 
       <input
@@ -140,7 +149,7 @@ export default function ServicesPage() {
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50 transition"
             >
               Anterior
             </button>
@@ -150,7 +159,7 @@ export default function ServicesPage() {
             <button
               disabled={page * pageSize >= total}
               onClick={() => setPage(page + 1)}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-400 disabled:opacity-50 transition"
             >
               Siguiente
             </button>

@@ -49,7 +49,7 @@ export default function DashboardPage() {
       {/* Contenedor principal: Cards + Gráfico en la misma fila */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Sección de las 4 cards (2/3 del espacio) */}
-        <div className="lg:col-span-2 grid grid-cols-2 gap-6">
+        <div className=" grid grid-cols-2 gap-6">
           <Card titulo="Usuarios" valor={resumen.totalUsuarios} />
           <Card titulo="Movimientos" valor={resumen.totalMovimientos} />
           <Card titulo="Servicios" valor={resumen.totalServicios} />
@@ -57,9 +57,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Sección del gráfico (1/3 del espacio) */}
-        <div className="bg-white p-6 rounded-2xl shadow h-full">
+        <div className="bg-white p-6 rounded-2xl shadow h-full lg:col-span-2">
           <h2 className="text-xl font-semibold mb-4">Distribución por Medios de Pago</h2>
-          <div className="w-full h-64">  {/* Ajusta la altura según necesites */}
+          <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
