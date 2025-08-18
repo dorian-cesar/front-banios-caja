@@ -7,6 +7,7 @@ import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { movimientoService } from '@/services/movimiento.service';
 import { helperService } from '@/services/helper.service';
 import { formatFecha, formatNumber } from '@/utils/helper';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function MovimientosPage() {
   const [movimientos, setMovimientos] = useState([]);
@@ -16,6 +17,7 @@ export default function MovimientosPage() {
   const [pageSize] = useState(10);
   const [search, setSearch] = useState('');
   const [total, setTotal] = useState(0);
+  const { showNotification } = useNotification();
 
   const [metadata, setMetadata] = useState({
     usuarios: [],
@@ -47,6 +49,12 @@ export default function MovimientosPage() {
       setTotal(res.total);
     } catch (err) {
       setError(err.message || 'Error al cargar movimientos');
+      showNotification({
+        type: "error",
+        title: "Error",
+        message: 'No se pudieron cargar los movimientos',
+        duration: 5000
+      });
     } finally {
       setLoading(false);
     }
@@ -59,6 +67,12 @@ export default function MovimientosPage() {
         setMetadata(res);
       } catch {
         console.warn('Error al cargar metadata de filtros');
+        showNotification({
+          type: "error",
+          title: "Error",
+          message: 'No se pudieron cargar los filtros',
+          duration: 5000
+        });
       }
     };
     fetchMetadata();
@@ -67,12 +81,32 @@ export default function MovimientosPage() {
   useEffect(() => { fetchMovimientos(); }, [page, search, filtros]);
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este movimiento? Esta acción no se puede deshacer.')) return;
+    if (!confirm('¿Estás seguro de eliminar este movimiento? Esta acción no se puede deshacer.')) {
+      showNotification({
+        type: "info",
+        title: "Cancelado",
+        message: "La eliminación fue cancelada",
+        duration: 5000
+      });
+      return;
+    }
     try {
       await movimientoService.delete(id);
       fetchMovimientos();
+      showNotification({
+        type: "success",
+        title: "Movimiento eliminado",
+        message: "El movimiento se ha eliminado correctamente",
+        duration: 5000
+      });
     } catch (err) {
       setError(err.message || 'Error al eliminar movimiento');
+      showNotification({
+        type: "error",
+        title: "Error al eliminar",
+        message: err.message || 'Error al eliminar movimiento',
+        duration: 5000
+      });
     }
   };
 
@@ -160,9 +194,8 @@ export default function MovimientosPage() {
       </div>
 
       {loading && <TableSkeleton rows={10} cols={10} />}
-      {error && <p className="text-red-500 p-3 bg-red-50 rounded-lg">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
             <thead className="bg-gray-100">

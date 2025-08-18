@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { serviceService } from '@/services/service.service';
 import { FormSkeleton6 } from '@/components/skeletons';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function NewServicePage() {
     const router = useRouter();
@@ -18,6 +19,7 @@ export default function NewServicePage() {
     });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const fetchTipos = async () => {
@@ -27,6 +29,12 @@ export default function NewServicePage() {
                 if (res.length) setForm(f => ({ ...f, tipo: res[0] }));
             } catch (err) {
                 setError('Error al cargar tipos de servicio');
+                showNotification({
+                    type: "error",
+                    title: "Error",
+                    message: 'No se pudieron cargar los tipos de servicio',
+                    duration: 5000
+                });
             } finally {
                 setLoading(false);
             }
@@ -41,24 +49,29 @@ export default function NewServicePage() {
         setError(null);
         try {
             await serviceService.create(form);
+            showNotification({
+                type: "success",
+                title: "Servicio creado",
+                message: "El servicio se ha creado exitosamente",
+                duration: 5000
+            });
             router.push('/dashboard/servicios');
         } catch (err) {
             setError(err.message || 'Error al crear servicio');
+            showNotification({
+                type: "error",
+                title: "Error",
+                message: err.message || 'Error al crear el servicio',
+                duration: 5000
+            });
         }
     };
 
     if (loading) return <FormSkeleton6 />;
-    if (error) return <p className="text-red-600 p-3">{error}</p>;
 
     return (
         <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">
             <h1 className="text-2xl font-bold mb-6 text-gray-800">Nuevo Servicio</h1>
-
-            {error && (
-                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-                    {error}
-                </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cajaService } from '@/services/caja.service';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function NewCajaPage() {
     const router = useRouter();
     const [form, setForm] = useState({ numero_caja: '', nombre: '', ubicacion: '', estado: 'activa', descripcion: '' });
     const [error, setError] = useState(null);
-
+    const { showNotification } = useNotification();
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
     const handleSubmit = async (e) => {
@@ -17,19 +18,27 @@ export default function NewCajaPage() {
         setError(null);
         try {
             await cajaService.create(form);
+            showNotification({
+                type: "success",
+                title: "Caja creada",
+                message: "La caja se ha creado exitosamente",
+                duration: 5000
+            });
             router.push('/dashboard/cajas');
         } catch (err) {
             setError(err.message || 'Error al crear la caja');
+            showNotification({
+                type: "error",
+                title: "Error",
+                message: err.message || 'Error al crear la caja',
+                duration: 5000
+            });
         }
     };
 
     return (
         <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">
             <h1 className="text-2xl font-bold mb-6 text-gray-800">Nueva Caja</h1>
-
-            {error && (
-                <p className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</p>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

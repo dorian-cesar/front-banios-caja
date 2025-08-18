@@ -5,6 +5,7 @@ import { TableSkeleton } from '@/components/skeletons';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { userService } from '@/services/user.service';
 import { getCurrentUser } from '@/utils/session';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -14,6 +15,7 @@ export default function UsersPage() {
   const [pageSize] = useState(10);
   const [search, setSearch] = useState('');
   const [total, setTotal] = useState(0);
+  const { showNotification } = useNotification();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -24,6 +26,12 @@ export default function UsersPage() {
       setTotal(res.total);
     } catch (err) {
       setError(err.message || 'Error al cargar usuarios');
+      showNotification({
+        type: "error",
+        title: "Error",
+        message: 'Error al cargar usuarios',
+        duration: 5000
+      });
     } finally {
       setLoading(false);
     }
@@ -34,12 +42,32 @@ export default function UsersPage() {
   }, [page, search]);
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) return;
+    if (!confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
+      showNotification({
+        type: "info",
+        title: "Cancelado",
+        message: "La eliminación fue cancelada",
+        duration: 5000
+      });
+      return;
+    }
     try {
       await userService.delete(id);
       fetchUsers();
+      showNotification({
+        type: "success",
+        title: "Usuario eliminado",
+        message: "El usuario se ha eliminado correctamente",
+        duration: 5000
+      });
     } catch (err) {
       setError(err.message || 'Error al eliminar usuario');
+      showNotification({
+        type: "error",
+        title: "Error al eliminar",
+        message: err.message || 'Error al eliminar usuario',
+        duration: 5000
+      });
     }
   };
 
@@ -69,9 +97,8 @@ export default function UsersPage() {
       </div>
 
       {loading && <TableSkeleton rows={5} cols={5} />}
-      {error && <p className="text-red-500 p-3 bg-red-50 rounded-lg">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
             <thead className="bg-gray-100">
@@ -91,12 +118,14 @@ export default function UsersPage() {
                   <td className="px-4 py-2">{u.email}</td>
                   <td className="px-4 py-2 capitalize">{u.role}</td>
                   <td className="px-4 py-2 space-x-2 flex">
-                    <Link
-                      href={`/dashboard/users/${u.id}`}
-                      className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
-                    >
-                      <PencilSquareIcon className="h-5 w-5 inline" />
-                    </Link>
+                    {u.id !== currentUser.id && (
+                      <Link
+                        href={`/dashboard/users/${u.id}`}
+                        className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
+                      >
+                        <PencilSquareIcon className="h-5 w-5 inline" />
+                      </Link>
+                    )}
                     {u.id !== currentUser.id && (
                       <button
                         onClick={() => handleDelete(u.id)}
@@ -133,6 +162,7 @@ export default function UsersPage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

@@ -23,10 +23,11 @@ export class ApiClient {
 
     if (body) opts.body = JSON.stringify(body);
 
-    const res = await fetch(url.toString(), opts);
 
     // Si no autorizado
-    if (res.status === 401 || res.status === 403) {
+    const res = await fetch(url.toString(), opts);
+
+    if ((res.status === 401 || res.status === 403) && path !== '/auth/login') {
       clearSession();
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
@@ -35,16 +36,12 @@ export class ApiClient {
     }
 
     if (!res.ok) {
-      let errorText;
-      try {
-        errorText = await res.text();
-      } catch {
-        errorText = `Error ${res.status}`;
-      }
+      const errorText = await res.text();
       throw new Error(errorText || `API error ${res.status}`);
     }
 
     return res.json();
+
   }
 
   get(path, params) { return this.request(path, { method: 'GET', params }); }

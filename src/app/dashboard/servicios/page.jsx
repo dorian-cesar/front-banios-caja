@@ -6,6 +6,7 @@ import { serviceService } from '@/services/service.service';
 import { TableSkeleton } from '@/components/skeletons';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { formatNumber } from '@/utils/helper';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
@@ -15,6 +16,7 @@ export default function ServicesPage() {
   const [pageSize] = useState(10);
   const [search, setSearch] = useState('');
   const [total, setTotal] = useState(0);
+  const { showNotification } = useNotification();
 
   const fetchServices = async () => {
     setLoading(true);
@@ -24,7 +26,13 @@ export default function ServicesPage() {
       setServices(res.data);
       setTotal(res.total);
     } catch (err) {
-      setError(err.message || 'Error al cargar servicios');
+      setError(err.message || 'Error al cargar los servicios');
+      showNotification({
+        type: "error",
+        title: "Error",
+        message: 'No se pudieron cargar los servicios',
+        duration: 5000
+      });
     } finally {
       setLoading(false);
     }
@@ -35,12 +43,34 @@ export default function ServicesPage() {
   }, [page, search]);
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este servicio? Esta acción no se puede deshacer.')) return;
+    if (!confirm('¿Estás seguro de eliminar este servicio? Esta acción no se puede deshacer.')) {
+      showNotification({
+        type: "info",
+        title: "Cancelado",
+        message: "La eliminación fue cancelada",
+        duration: 5000
+      });
+      return;
+    }
+
     try {
       await serviceService.delete(id);
       fetchServices();
+      showNotification({
+        type: "success",
+        title: "Servicio eliminado",
+        message: "El servicio se ha eliminado correctamente",
+        duration: 5000
+      });
+
     } catch (err) {
       setError(err.message || 'Error al eliminar servicio');
+      showNotification({
+        type: "error",
+        title: "Error al eliminar",
+        message: err.message || 'Error al eliminar servicio',
+        duration: 5000
+      });
     }
   };
 
@@ -65,9 +95,8 @@ export default function ServicesPage() {
       />
 
       {loading && <TableSkeleton rows={5} cols={6} />}
-      {error && <p className="text-red-500 p-3 bg-red-50 rounded-lg">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
             <thead className="bg-gray-100">

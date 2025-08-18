@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { userService } from '@/services/user.service';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function NewUserPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function NewUserPage() {
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -25,6 +27,12 @@ export default function NewUserPage() {
         if (r.length) setForm(f => ({ ...f, role: r[0] }));
       } catch (err) {
         setError(err.message || 'Error al cargar roles');
+        showNotification({
+          type: "error",
+          title: "Error",
+          message: 'Error al cargar roles',
+          duration: 5000
+        });
       } finally {
         setLoading(false);
       }
@@ -39,24 +47,29 @@ export default function NewUserPage() {
     setError(null);
     try {
       await userService.create(form);
+      showNotification({
+        type: "success",
+        title: "Usuario creado",
+        message: "El usuario se ha creado exitosamente",
+        duration: 5000
+      });
       router.push('/dashboard/users');
     } catch (err) {
       setError(err.message || 'Error al crear usuario');
+      showNotification({
+        type: "error",
+        title: "Error",
+        message: err.message || 'Error al crear el usuario',
+        duration: 5000
+      });
     }
   };
 
   if (loading) return <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">Cargando roles...</div>;
-  if (error) return <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md text-red-600">{error}</div>;
 
   return (
     <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Nuevo Usuario</h1>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-          {error}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

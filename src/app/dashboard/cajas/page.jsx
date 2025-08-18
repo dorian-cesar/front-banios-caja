@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { cajaService } from '@/services/caja.service';
 import { TableSkeleton } from '@/components/skeletons';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function CajasPage() {
   const [cajas, setCajas] = useState([]);
@@ -13,6 +14,7 @@ export default function CajasPage() {
   const [pageSize] = useState(10);
   const [search, setSearch] = useState('');
   const [total, setTotal] = useState(0);
+  const { showNotification } = useNotification();
 
   const fetchCajas = async () => {
     setLoading(true);
@@ -23,6 +25,12 @@ export default function CajasPage() {
       setTotal(res.total);
     } catch (err) {
       setError(err.message || 'Error al cargar cajas');
+      showNotification({
+        type: "error",
+        title: "Error",
+        message: 'Error al cargar cajas',
+        duration: 5000
+      });
     } finally {
       setLoading(false);
     }
@@ -33,12 +41,32 @@ export default function CajasPage() {
   }, [page, search]);
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Seguro quieres eliminar esta caja?')) return;
+    if (!confirm('¿Estás seguro de eliminar esta caja? Esta acción no se puede deshacer.')) {
+      showNotification({
+        type: "info",
+        title: "Cancelado",
+        message: "La eliminación fue cancelada",
+        duration: 5000
+      });
+      return;
+    }
     try {
       await cajaService.delete(id);
       fetchCajas();
+      showNotification({
+        type: "success",
+        title: "Caja eliminada",
+        message: "La caja se ha eliminado correctamente",
+        duration: 5000
+      });
     } catch (err) {
       alert(err.message || 'Error al eliminar la caja');
+      showNotification({
+        type: "error",
+        title: "Error al eliminar",
+        message: err.message || 'Error al eliminar caja',
+        duration: 5000
+      });
     }
   };
 
@@ -51,12 +79,11 @@ export default function CajasPage() {
         </Link>
       </div>
 
-      <input type="text" placeholder="Buscar por numero o nombre..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4 w-full max-w-sm rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+      <input type="text" placeholder="Buscar por numero o nombre..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4 w-full max-w-sm rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
 
       {loading && <TableSkeleton rows={3} cols={6} />}
-      {error && <p className="text-red-500">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
             <thead className="bg-gray-100">

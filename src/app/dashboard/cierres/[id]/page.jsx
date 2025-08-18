@@ -8,6 +8,7 @@ import { cierreService } from '@/services/cierre.service';
 import { helperService } from '@/services/helper.service';
 import { FormSkeleton3 } from '@/components/skeletons';
 import { formatNumber, formatTimeForInput } from '@/utils/helper';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function EditCierrePage() {
     const router = useRouter();
@@ -16,6 +17,7 @@ export default function EditCierrePage() {
     const [metadata, setMetadata] = useState({ usuarios: [], cajas: [] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -33,6 +35,12 @@ export default function EditCierrePage() {
                 setMetadata(meta);
             } catch (err) {
                 setError(err.message || 'Error al cargar registro');
+                showNotification({
+                    type: "error",
+                    title: "Error",
+                    message: 'Error al cargar registro',
+                    duration: 5000
+                });
             } finally {
                 setLoading(false);
             }
@@ -47,24 +55,55 @@ export default function EditCierrePage() {
         setError(null);
         try {
             await cierreService.update(id, form);
+            showNotification({
+                type: "success",
+                title: "Registro actualizado",
+                message: "Los cambios se han guardado correctamente",
+                duration: 5000
+            });
             router.push('/dashboard/cierres');
         } catch (err) {
             setError(err.message || 'Error al actualizar registro');
+            showNotification({
+                type: "error",
+                title: "Error al guardar",
+                message: err.message || 'Error al actualizar registro',
+                duration: 5000
+            });
         }
     };
 
     const handleDelete = async () => {
-        if (!confirm('¿Estás seguro de eliminar este registro? Esta acción no se puede deshacer.')) return;
+        if (!confirm('¿Estás seguro de eliminar este registro? Esta acción no se puede deshacer.')) {
+            showNotification({
+                type: "info",
+                title: "Cancelado",
+                message: "La eliminación fue cancelada",
+                duration: 5000
+            });
+            return;
+        }
         try {
             await cierreService.delete(id);
+            showNotification({
+                type: "success",
+                title: "Registro eliminado",
+                message: "El registro se ha eliminado correctamente",
+                duration: 5000
+            });
             router.push('/dashboard/cierres');
         } catch (err) {
             setError(err.message || 'Error al eliminar registro');
+            showNotification({
+                type: "error",
+                title: "Error al eliminar",
+                message: err.message || 'Error al eliminar registro',
+                duration: 5000
+            });
         }
     };
 
     if (loading) return <FormSkeleton3 />;
-    if (error) return <p className="text-red-600 p-4 bg-red-50 rounded-lg">{error}</p>;
     if (!form) return <p className="text-gray-600 p-4">Registro no encontrado</p>;
 
     return (
@@ -81,7 +120,6 @@ export default function EditCierrePage() {
                 </button>
             </div>
 
-            {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg">{error}</div>}
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

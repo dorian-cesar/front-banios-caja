@@ -9,6 +9,8 @@ import { cierreService } from '@/services/cierre.service';
 import { helperService } from '@/services/helper.service';
 
 import { formatFecha, formatNumber } from '@/utils/helper';
+import { useNotification } from "@/contexts/NotificationContext";
+
 
 export default function CierresPage() {
   const [cierres, setCierres] = useState([]);
@@ -28,6 +30,7 @@ export default function CierresPage() {
     fecha_inicio: '',
     fecha_fin: ''
   });
+  const { showNotification } = useNotification();
 
   const fetchCierres = async () => {
     setLoading(true);
@@ -38,6 +41,12 @@ export default function CierresPage() {
       setTotal(res.total);
     } catch (err) {
       setError(err.message || 'Error al cargar registros');
+      showNotification({
+        type: "error",
+        title: "Error",
+        message: 'No se pudieron cargar los registros',
+        duration: 5000
+      });
     } finally {
       setLoading(false);
     }
@@ -50,6 +59,12 @@ export default function CierresPage() {
         setMetadata(res);
       } catch {
         console.warn('Error al cargar metadata de filtros');
+        showNotification({
+          type: "error",
+          title: "Error",
+          message: 'No se pudieron cargar los filtros',
+          duration: 5000
+        });
       }
     };
     fetchMetadata();
@@ -58,12 +73,32 @@ export default function CierresPage() {
   useEffect(() => { fetchCierres(); }, [page, search, filtros]);
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Seguro quieres eliminar este registro?')) return;
+    if (!confirm('¿Estás seguro de eliminar este registro? Esta acción no se puede deshacer.')) {
+      showNotification({
+        type: "info",
+        title: "Cancelado",
+        message: "La eliminación fue cancelada",
+        duration: 5000
+      });
+      return;
+    }
     try {
       await cierreService.delete(id);
       fetchCierres();
+      showNotification({
+        type: "success",
+        title: "Registro eliminado",
+        message: "El registro se ha eliminado correctamente",
+        duration: 5000
+      });
     } catch (err) {
       alert(err.message || 'Error al eliminar registro');
+      showNotification({
+        type: "error",
+        title: "Error al eliminar",
+        message: err.message || 'Error al eliminar registro',
+        duration: 5000
+      });
     }
   };
 
@@ -112,9 +147,8 @@ export default function CierresPage() {
       </div>
 
       {loading && <TableSkeleton rows={10} cols={10} />}
-      {error && <p className="text-red-500">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
             <thead className="bg-gray-100">

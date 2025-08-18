@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { userService } from '@/services/user.service';
 import { FormSkeleton2 } from '@/components/skeletons';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function EditUserPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function EditUserPage() {
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,6 +27,12 @@ export default function EditUserPage() {
         setRoles(rolesList);
       } catch (err) {
         setError(err.message || 'Error al cargar usuario');
+        showNotification({
+          type: "error",
+          title: "Error",
+          message: 'Error al cargar usuario',
+          duration: 5000
+        });
       } finally {
         setLoading(false);
       }
@@ -39,25 +47,30 @@ export default function EditUserPage() {
     setError(null);
     try {
       await userService.update(id, form);
+      showNotification({
+        type: "success",
+        title: "Usuario actualizado",
+        message: "Los cambios se han guardado correctamente",
+        duration: 5000
+      });
       router.push('/dashboard/users');
     } catch (err) {
       setError(err.message || 'Error al actualizar usuario');
+      showNotification({
+        type: "error",
+        title: "Error al guardar",
+        message: err.message || 'Error al actualizar usuario',
+        duration: 5000
+      });
     }
   };
 
   if (loading) return <FormSkeleton2 />;
-  if (error) return <p className="text-red-600 p-4 bg-red-50 rounded-lg">{error}</p>;
   if (!form) return <p className="text-gray-600 p-4">Usuario no encontrado</p>;
 
   return (
     <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Editar Usuario {form.username}</h1>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-          {error}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

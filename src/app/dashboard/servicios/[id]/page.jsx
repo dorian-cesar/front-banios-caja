@@ -30,18 +30,12 @@ export default function EditServicePage() {
                 });
                 setTipos(tiposList);
 
-                showNotification({
-                    type: "success",
-                    title: "Datos cargados",
-                    message: "La información del servicio se ha cargado correctamente",
-                    duration: 3000
-                });
             } catch (err) {
                 setError(err.message || 'Error al cargar servicio');
                 showNotification({
                     type: "error",
                     title: "Error",
-                    message: err.message || 'Error al cargar servicio',
+                    message: 'Error al cargar servicio',
                     duration: 5000
                 });
             } finally {
@@ -62,7 +56,7 @@ export default function EditServicePage() {
                 type: "success",
                 title: "Servicio actualizado",
                 message: "Los cambios se han guardado correctamente",
-                duration: 4000
+                duration: 5000
             });
             router.push('/dashboard/servicios');
         } catch (err) {
@@ -82,7 +76,7 @@ export default function EditServicePage() {
                 type: "info",
                 title: "Cancelado",
                 message: "La eliminación fue cancelada",
-                duration: 3000
+                duration: 5000
             });
             return;
         }
@@ -93,7 +87,7 @@ export default function EditServicePage() {
                 type: "success",
                 title: "Servicio eliminado",
                 message: "El servicio se ha eliminado correctamente",
-                duration: 4000
+                duration: 5000
             });
             router.push('/dashboard/servicios');
         } catch (err) {

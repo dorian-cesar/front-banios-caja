@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { cajaService } from '@/services/caja.service';
 import { FormSkeleton } from '@/components/skeletons';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function EditCajaPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function EditCajaPage() {
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     const fetchCaja = async () => {
@@ -20,6 +22,12 @@ export default function EditCajaPage() {
         setForm(data);
       } catch (err) {
         setError(err.message || 'Error al cargar la caja');
+        showNotification({
+          type: "error",
+          title: "Error",
+          message: 'Error al cargar caja',
+          duration: 5000
+        });
       } finally {
         setLoading(false);
       }
@@ -34,14 +42,25 @@ export default function EditCajaPage() {
     setError(null);
     try {
       await cajaService.update(id, form);
+      showNotification({
+        type: "success",
+        title: "Caja actualizada",
+        message: "Los cambios se han guardado correctamente",
+        duration: 5000
+      });
       router.push('/dashboard/cajas');
     } catch (err) {
       setError(err.message || 'Error al actualizar la caja');
+      showNotification({
+        type: "error",
+        title: "Error al guardar",
+        message: err.message || 'Error al actualizar caja',
+        duration: 5000
+      });
     }
   };
 
   if (loading) return <FormSkeleton />;
-  if (error) return <p className="text-red-600 p-3">{error}</p>;
   if (!form) return <p className="text-gray-600 p-3">Caja no encontrada</p>;
 
   return (

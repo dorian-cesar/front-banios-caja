@@ -7,6 +7,7 @@ import { movimientoService } from '@/services/movimiento.service';
 import { helperService } from '@/services/helper.service';
 import { FormSkeleton5 } from '@/components/skeletons';
 import { formatNumber, formatTimeForInput } from '@/utils/helper';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function EditMovimientoPage() {
     const router = useRouter();
@@ -15,6 +16,7 @@ export default function EditMovimientoPage() {
     const [metadata, setMetadata] = useState({ usuarios: [], cajas: [], servicios: [], mediosPago: [] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,6 +32,12 @@ export default function EditMovimientoPage() {
                 setMetadata(meta);
             } catch (err) {
                 setError(err.message || 'Error al cargar registro');
+                showNotification({
+                    type: "error",
+                    title: "Error",
+                    message: 'Error al cargar registro',
+                    duration: 5000
+                });
             } finally {
                 setLoading(false);
             }
@@ -44,24 +52,55 @@ export default function EditMovimientoPage() {
         setError(null);
         try {
             await movimientoService.update(id, form);
+            showNotification({
+                type: "success",
+                title: "Movimiento actualizado",
+                message: "Los cambios se han guardado correctamente",
+                duration: 5000
+            });
             router.push('/dashboard/movimientos');
         } catch (err) {
             setError(err.message || 'Error al actualizar movimiento');
+            showNotification({
+                type: "error",
+                title: "Error al guardar",
+                message: err.message || 'Error al actualizar movimiento',
+                duration: 5000
+            });
         }
     };
 
     const handleDelete = async () => {
-        if (!confirm('¿Estás seguro de eliminar este movimiento? Esta acción no se puede deshacer.')) return;
+        if (!confirm('¿Estás seguro de eliminar este movimiento? Esta acción no se puede deshacer.')) {
+            showNotification({
+                type: "info",
+                title: "Cancelado",
+                message: "La eliminación fue cancelada",
+                duration: 5000
+            });
+            return;
+        }
         try {
             await movimientoService.delete(id);
+            showNotification({
+                type: "success",
+                title: "Movimiento eliminado",
+                message: "El movimiento se ha eliminado correctamente",
+                duration: 5000
+            });
             router.push('/dashboard/movimientos');
         } catch (err) {
             setError(err.message || 'Error al eliminar movimiento');
+            showNotification({
+                type: "error",
+                title: "Error al eliminar",
+                message: err.message || 'Error al eliminar movimiento',
+                duration: 5000
+            });
         }
     };
 
     if (loading) return <FormSkeleton5 />;
-    if (error) return <p className="text-red-600 p-4 bg-red-50 rounded-lg">{error}</p>;
     if (!form) return <p className="text-gray-600 p-4">Movimiento no encontrado</p>;
 
     return (
@@ -77,8 +116,6 @@ export default function EditMovimientoPage() {
                     Eliminar Movimiento
                 </button>
             </div>
-
-            {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg">{error}</div>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

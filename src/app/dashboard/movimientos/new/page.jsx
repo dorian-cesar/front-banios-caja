@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { movimientoService } from '@/services/movimiento.service';
 import { helperService } from '@/services/helper.service';
 import { FormSkeleton4 } from '@/components/skeletons';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function NewMovimientoPage() {
     const router = useRouter();
@@ -24,6 +25,7 @@ export default function NewMovimientoPage() {
     const [metadata, setMetadata] = useState({ usuarios: [], cajas: [], servicios: [], mediosPago: [] });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const fetchMetadata = async () => {
@@ -32,6 +34,12 @@ export default function NewMovimientoPage() {
                 setMetadata(res);
             } catch (err) {
                 setError('Error al cargar datos de formulario');
+                showNotification({
+                    type: "error",
+                    title: "Error",
+                    message: 'No se pudieron cargar los datos del formulario',
+                    duration: 5000
+                });
             } finally {
                 setLoading(false);
             }
@@ -46,20 +54,29 @@ export default function NewMovimientoPage() {
         setError(null);
         try {
             await movimientoService.create(form);
+            showNotification({
+                type: "success",
+                title: "Movimiento creado",
+                message: "El movimiento se ha creado exitosamente",
+                duration: 5000
+            });
             router.push('/dashboard/movimientos');
         } catch (err) {
             setError(err.message || 'Error al crear movimiento');
+            showNotification({
+                type: "error",
+                title: "Error",
+                message: err.message || 'Error al crear el movimiento',
+                duration: 5000
+            });
         }
     };
 
     if (loading) return <FormSkeleton4 />;
-    if (error) return <p className="text-red-600 p-3">{error}</p>;
 
     return (
         <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">
             <h1 className="text-2xl font-bold mb-6 text-gray-800">Nuevo Movimiento</h1>
-
-            {error && <p className="text-red-600 mb-4 p-2 bg-red-50 rounded">{error}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
