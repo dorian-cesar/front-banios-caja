@@ -56,7 +56,6 @@ export default function DashboardPage() {
           <Card titulo="Cajas" valor={resumen.totalCajas} />
         </div>
 
-        {/* Sección del gráfico (1/3 del espacio) */}
         <div className="bg-white p-6 rounded-2xl shadow h-full lg:col-span-2">
           <h2 className="text-xl font-semibold mb-4">Distribución por Medios de Pago</h2>
           <div className="w-full h-64">

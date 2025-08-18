@@ -1,8 +1,9 @@
 import "@/styles/globals.css";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 export const metadata = {
-    title: 'Inicio De sesión',
+    title: 'Inicio de Sesión',
     description: 'Gestión de baños',
+    icons: "/favicon.ico"
 };
 
 export default function RootLayout({ children }) {
