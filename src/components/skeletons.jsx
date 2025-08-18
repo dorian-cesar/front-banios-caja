@@ -1,5 +1,5 @@
 const shimmer =
-  'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent';
+  'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[wave_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/40 before:to-transparent';
 
 export function TableSkeleton({ rows = 5, cols = 6 }) {
   return (
@@ -26,6 +26,37 @@ export function TableSkeleton({ rows = 5, cols = 6 }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+export function DashboardSkeleton() {
+  return (
+    <div className="p-6 space-y-6">
+      {/* Título */}
+      <div className={`h-10 w-1/4 bg-gray-200 rounded ${shimmer}`}></div>
+
+      {/* 4 Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className={`h-32 bg-gray-200 rounded-2xl ${shimmer}`}></div>
+        ))}
+      </div>
+
+      {/* Gráfico + GananciaCards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Gráfico */}
+        <div className={`lg:col-span-2 h-72 bg-gray-200 rounded-2xl ${shimmer}`}></div>
+        {/* Placeholder secundario */}
+        <div className={`h-72 bg-gray-200 rounded-2xl ${shimmer}`}></div>
+      </div>
+
+      {/* 4 GananciaCards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className={`h-32 bg-gray-200 rounded-2xl ${shimmer}`}></div>
+        ))}
+      </div>
     </div>
   );
 }

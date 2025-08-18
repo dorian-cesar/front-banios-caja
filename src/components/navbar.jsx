@@ -2,9 +2,11 @@
 import Link from "next/link";
 import { UserIcon, PowerIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { clearSession } from "@/utils/session"
 
 export default function Navbar() {
+    const router = useRouter();
     const [nombre, setNombre] = useState("");
 
     useEffect(() => {
@@ -32,16 +34,17 @@ export default function Navbar() {
                 <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg opacity-0 invisible scale-95 group-hover:opacity-100 group-hover:visible group-hover:scale-100 transform transition-all duration-200 origin-top-right z-10">
                     <Link
                         href="/dashboard/perfil"
-                        className="flex items-center px-4 py-2 hover:bg-gray-100 transition rounded-t-lg"
+                        className="flex items-center px-4 py-2 hover:bg-gray-300 transition rounded-t-lg"
                     >
                         Ver perfil
                     </Link>
                     <button
                         onClick={() => {
                             clearSession();
-                            window.location.href = "/login";
+                            router.replace("/login");
+                            router.refresh()
                         }}
-                        className="flex items-center w-full text-left px-4 py-2 hover:bg-gray-100 transition rounded-b-lg"
+                        className="flex items-center w-full text-left px-4 py-2 hover:bg-gray-300 transition rounded-b-lg"
                     >
                         Cerrar sesión
                         <PowerIcon className="h-5 w-5 ml-2 text-gray-700" />

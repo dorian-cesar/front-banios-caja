@@ -1,21 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth.service";
-import { saveSession } from "@/utils/session";
+import { saveSession, isTokenExpired, getCurrentUser } from "@/utils/session";
 import { useNotification } from "@/contexts/NotificationContext";
-import { LockClosedIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { LockClosedIcon, EnvelopeIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const { showNotification } = useNotification();
+
+
+    useEffect(() => {
+        const user = getCurrentUser();
+        if (user && !isTokenExpired()) {
+            showNotification({
+                type: "success",
+                title: "Sesión Activa",
+                message: "Se redirigirá al dashboard",
+                duration: 3000
+            });
+            setLoading(true);
+            router.replace("/dashboard");
+        }
+    }, []);
+
+    const isValidEmail = (email) => {
+        // Expresión regular básica para validar email
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!isValidEmail(email)) {
+            showNotification({
+                type: "warning",
+                title: "Correo inválido",
+                message: "Por favor ingresa un correo electrónico válido.",
+                duration: 4000
+            });
+            return;
+        }
+
+        /*
+        if (password.length < 6) {
+            showNotification({
+                type: "warning",
+                title: "Contraseña inválida",
+                message: "La contraseña debe tener al menos 6 caracteres.",
+                duration: 4000
+            });
+            return;
+        }
+
+        */
+
         setLoading(true);
 
         try {
@@ -65,6 +110,7 @@ export default function LoginPage() {
                     noValidate
                 >
                     <div className="space-y-5">
+                        {/* Email */}
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                                 Correo electrónico
@@ -86,6 +132,7 @@ export default function LoginPage() {
                             </div>
                         </div>
 
+                        {/* Password */}
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                                 Contraseña
@@ -96,31 +143,60 @@ export default function LoginPage() {
                                 </div>
                                 <input
                                     id="password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                    className="pl-10 pr-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                                     required
                                     autoComplete="current-password"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? (
+                                        <EyeSlashIcon className="h-5 w-5" />
+                                    ) : (
+                                        <EyeIcon className="h-5 w-5" />
+                                    )}
+                                </button>
                             </div>
                         </div>
 
+                        {/* Submit */}
                         <div>
                             <button
                                 type="submit"
                                 disabled={loading}
                                 className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-all flex items-center justify-center ${loading
-                                        ? "bg-blue-400 cursor-not-allowed"
-                                        : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"
+                                    ? "bg-blue-400 cursor-not-allowed"
+                                    : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"
                                     }`}
                             >
                                 {loading ? (
                                     <>
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        <svg
+                                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle
+                                                className="opacity-25"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                strokeWidth="4"
+                                            ></circle>
+                                            <path
+                                                className="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 
+                                                1.135 5.824 3 7.938l3-2.647z"
+                                            ></path>
                                         </svg>
                                         Procesando...
                                     </>
@@ -133,7 +209,12 @@ export default function LoginPage() {
                 </form>
 
                 <div className="mt-6 text-center text-sm text-gray-600">
-                    <p>¿Problemas para ingresar? <a href="#" className="text-blue-600 hover:text-blue-800">Contacta al administrador</a></p>
+                    <p>
+                        ¿Problemas para ingresar?{" "}
+                        <a href="#" className="text-blue-600 hover:text-blue-800">
+                            Contacta al administrador
+                        </a>
+                    </p>
                 </div>
             </div>
         </div>
