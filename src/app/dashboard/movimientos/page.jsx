@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { TableSkeleton } from '@/components/skeletons';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { movimientoService } from '@/services/movimiento.service';
 import ExportCSVButton from "@/components/ExportCSVButton";
 import { helperService } from '@/services/helper.service';
@@ -116,7 +116,13 @@ export default function MovimientosPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold text-gray-800">Movimientos</h1>
+        <div className="flex space-x-2 items-center">
+          <h1 className="text-3xl font-bold text-gray-800">Gestión de Movimientos</h1>
+          <button className='p-2 bg-blue-500 text-white rounded-full hover:bg-blue-800 transition flex items-center justify-center'
+            onClick={() => fetchMovimientos()}>
+            <ArrowPathIcon className="h-6 w-6" />
+          </button>
+        </div>
         <div className="flex space-x-2">
           <ExportCSVButton
             filename="movimientos.csv"

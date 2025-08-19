@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { TableSkeleton } from '@/components/skeletons';
 import ExportCSVButton from "@/components/ExportCSVButton";
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 import { cierreService } from '@/services/cierre.service';
 import { helperService } from '@/services/helper.service';
@@ -108,7 +108,13 @@ export default function CierresPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold text-gray-800">Aperturas y Cierres</h1>
+        <div className="flex space-x-2 items-center">
+          <h1 className="text-3xl font-bold text-gray-800">Gestión de Aperturas y Cierres</h1>
+          <button className='p-2 bg-blue-500 text-white rounded-full hover:bg-blue-800 transition flex items-center justify-center'
+            onClick={() => fetchCierres()}>
+            <ArrowPathIcon className="h-6 w-6" />
+          </button>
+        </div>
         <div className="flex space-x-2">
           <ExportCSVButton
             filename="aperturas_cierres.csv"
@@ -256,7 +262,7 @@ export default function CierresPage() {
                   <td className="px-4 py-2">{`$${formatNumber(c.total_tarjeta)}`}</td>
                   <td className="px-4 py-2">{`$${formatNumber(c.total_general)}`}</td>
                   <td className="px-4 py-2">
-                  <span
+                    <span
                       className={`px-2 py-1 rounded text-white text-xs font-semibold
                         ${c.estado === 'abierta' ? 'bg-blue-500' : 'bg-red-500'}`}
                     >

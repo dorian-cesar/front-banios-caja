@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { serviceService } from '@/services/service.service';
 import { TableSkeleton } from '@/components/skeletons';
 import ExportCSVButton from "@/components/ExportCSVButton";
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { formatNumber } from '@/utils/helper';
 import { useNotification } from "@/contexts/NotificationContext";
 
@@ -78,7 +78,13 @@ export default function ServicesPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold text-gray-800">Servicios</h1>
+        <div className="flex space-x-2 items-center">
+          <h1 className="text-3xl font-bold text-gray-800">Gestión de Servicios</h1>
+          <button className='p-2 bg-blue-500 text-white rounded-full hover:bg-blue-800 transition flex items-center justify-center'
+            onClick={() => fetchServices()}>
+            <ArrowPathIcon className="h-6 w-6" />
+          </button>
+        </div>
         <div className="flex space-x-2">
           <ExportCSVButton
             filename="servicios.csv"

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { cajaService } from '@/services/caja.service';
 import { TableSkeleton } from '@/components/skeletons';
 import ExportCSVButton from "@/components/ExportCSVButton";
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useNotification } from "@/contexts/NotificationContext";
 
 export default function CajasPage() {
@@ -74,7 +74,13 @@ export default function CajasPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold text-gray-800">Cajas</h1>
+        <div className="flex space-x-2 items-center">
+          <h1 className="text-3xl font-bold text-gray-800">Gestión de Cajas</h1>
+          <button className='p-2 bg-blue-500 text-white rounded-full hover:bg-blue-800 transition flex items-center justify-center'
+          onClick={() => fetchCajas()}>
+            <ArrowPathIcon className="h-6 w-6" />
+          </button>
+        </div>
         <div className="flex space-x-2">
           <ExportCSVButton
             filename="cajas.csv"
