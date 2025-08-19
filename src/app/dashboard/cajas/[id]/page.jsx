@@ -101,7 +101,12 @@ export default function EditCajaPage() {
         </div>
 
         <div>
-          <label className="block text-gray-700 font-medium mb-1">Estado:</label>
+          <label className="flex text-gray-700 font-medium mb-1 items-center">
+            Estado:
+            <span className="block text-sm text-gray-500 font-normal ml-2">
+              (para cerrar una caja se hace desde "Aperturas y Cierres")
+            </span>
+          </label>
           <select
             name="estado"
             value={form.estado}

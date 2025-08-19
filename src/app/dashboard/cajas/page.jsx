@@ -76,8 +76,8 @@ export default function CajasPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold text-gray-800">Cajas</h1>
         <div className="flex space-x-2">
-          <ExportCSVButton 
-            filename="cajas.csv" 
+          <ExportCSVButton
+            filename="cajas.csv"
             filters={{ search }}
             service={cajaService}
           />
@@ -102,6 +102,7 @@ export default function CajasPage() {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Nombre</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Ubicación</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Estado</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Estado Apertura</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Acciones</th>
               </tr>
             </thead>
@@ -112,20 +113,43 @@ export default function CajasPage() {
                   <td className="px-4 py-2">{caja.numero_caja}</td>
                   <td className="px-4 py-2">{caja.nombre}</td>
                   <td className="px-4 py-2">{caja.ubicacion}</td>
-                  <td className="px-4 py-2">{caja.estado}</td>
+
+                  <td className="px-4 py-2">
+                    <span
+                      className={`px-2 py-1 rounded text-white text-xs font-semibold
+                        ${caja.estado_caja === 'activa' ? 'bg-green-500' : 'bg-gray-400'}`}
+                    >
+                      {caja.estado_caja}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-2">
+                    <span
+                      className={`px-2 py-1 rounded text-white text-xs font-semibold
+                        ${caja.estado_apertura === 'abierta' ? 'bg-blue-500' : 'bg-red-500'}`}
+                    >
+                      {caja.estado_apertura}
+                    </span>
+                  </td>
+
                   <td className="px-4 py-2 space-x-2 flex">
-                    <Link href={`/dashboard/cajas/${caja.id}`}
-                      className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center">
+                    <Link
+                      href={`/dashboard/cajas/${caja.id}`}
+                      className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
+                    >
                       <PencilSquareIcon className="h-5 w-5 inline" />
                     </Link>
-                    <button onClick={() => handleDelete(caja.id)}
-                      className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center">
+                    <button
+                      onClick={() => handleDelete(caja.id)}
+                      className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
+                    >
                       <TrashIcon className="h-5 w-5 inline" />
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
+
           </table>
 
           <div className="mt-4 flex items-center justify-center space-x-4">

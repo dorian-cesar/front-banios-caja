@@ -80,8 +80,8 @@ export default function ServicesPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold text-gray-800">Servicios</h1>
         <div className="flex space-x-2">
-          <ExportCSVButton 
-            filename="servicios.csv" 
+          <ExportCSVButton
+            filename="servicios.csv"
             filters={{ search }}
             service={serviceService}
           />
@@ -125,7 +125,15 @@ export default function ServicesPage() {
                   <td className="px-4 py-2">{s.nombre}</td>
                   <td className="px-4 py-2 capitalize">{s.tipo.toLowerCase()}</td>
                   <td className="px-4 py-2">${formatNumber(s.precio)}</td>
-                  <td className="px-4 py-2 capitalize">{s.estado.toLowerCase()}</td>
+                  <td className="px-4 py-2 capitalize">
+                    <span
+                      className={`px-2 py-1 rounded text-white text-xs font-semibold
+                        ${s.estado.toLowerCase() === 'activo' ? 'bg-green-500' : 'bg-gray-400'}`}
+                    >
+                      {s.estado.toLowerCase()}
+                    </span>
+                  </td>
+
                   <td className="px-4 py-2 space-x-2 flex">
                     <Link
                       href={`/dashboard/servicios/${s.id}`}

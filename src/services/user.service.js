@@ -1,6 +1,6 @@
 import { ApiClient } from '@/lib/apiClient';
 
-const api = new ApiClient({ baseUrl: 'http://localhost:4000/api' });
+const api = new ApiClient({ baseUrl: process.env.NEXT_PUBLIC_BASE_URL });
 
 export const userService = {
     list: (params) => api.get('/users', params),
