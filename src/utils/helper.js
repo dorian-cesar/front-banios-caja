@@ -4,14 +4,14 @@ export function formatFecha(fecha) {
     const d = new Date(fecha);
     if (isNaN(d)) return "-";
 
-    return new Intl.DateTimeFormat("es-CL", {
-        timeZone: "America/Santiago",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    }).format(d);
-}
+    // Simplemente formatea la fecha UTC sin ajustes de zona horaria
+    // Esto mostrará la fecha exacta que viene de la BD
+    const dia = d.getUTCDate().toString().padStart(2, '0');
+    const mes = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+    const año = d.getUTCFullYear();
 
+    return `${dia}-${mes}-${año}`;
+}
 
 export function formatNumber(value) {
     if (value === null || value === undefined) return '';
