@@ -82,9 +82,9 @@ function Sidebar() {
 
             <div className={`mt-auto pt-4 border-t border-gray-200 ${!open && "text-center"}`}>
                 {open ? (
-                    <p className="text-sm text-gray-500">Versión 1.0.0</p>
+                    <p className="text-sm text-gray-500">Versión 1.0.1</p>
                 ) : (
-                    <p className="text-xs text-gray-500">v1.0.0</p>
+                    <p className="text-xs text-gray-500">v1.0.1</p>
                 )}
             </div>
         </aside>

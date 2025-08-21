@@ -1,7 +1,17 @@
 export function formatFecha(fecha) {
     if (!fecha) return "-";
-    return new Date(fecha).toLocaleDateString();
+
+    const d = new Date(fecha);
+    if (isNaN(d)) return "-";
+
+    return new Intl.DateTimeFormat("es-CL", {
+        timeZone: "America/Santiago",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(d);
 }
+
 
 export function formatNumber(value) {
     if (value === null || value === undefined) return '';
