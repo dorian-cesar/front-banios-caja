@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { TableSkeleton } from '@/components/skeletons';
 import ExportCSVButton from "@/components/ExportCSVButton";
 import { PencilSquareIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -9,11 +9,16 @@ import { PencilSquareIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/
 import { cierreService } from '@/services/cierre.service';
 import { helperService } from '@/services/helper.service';
 
-import { formatFecha, formatNumber } from '@/utils/helper';
+import { formatFecha, formatNumber, todayChile } from '@/utils/helper';
 import { useNotification } from "@/contexts/NotificationContext";
 
+const TABS = { HOY: 'hoy', HISTORICO: 'historico' };
 
 export default function CierresPage() {
+  const [activeTab, setActiveTab] = useState(TABS.HOY);
+  const isHoy = activeTab === TABS.HOY;
+  const [filtersReady, setFiltersReady] = useState(false);
+
   const [cierres, setCierres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,6 +37,17 @@ export default function CierresPage() {
     fecha_fin: ''
   });
   const { showNotification } = useNotification();
+
+  useEffect(() => {
+    setPage(1);
+    if (isHoy) {
+      const hoy = todayChile();
+      setFiltros(prev => ({ ...prev, fecha_inicio: hoy, fecha_fin: hoy }));
+    } else {
+      setFiltros(prev => ({ ...prev, fecha_inicio: '', fecha_fin: '' }));
+    }
+    setFiltersReady(true);
+  }, [isHoy]);
 
   const fetchCierres = async () => {
     setLoading(true);
@@ -71,7 +87,10 @@ export default function CierresPage() {
     fetchMetadata();
   }, []);
 
-  useEffect(() => { fetchCierres(); }, [page, search, filtros]);
+  useEffect(() => {
+    if (!filtersReady) return;
+    fetchCierres();
+  }, [page, search, filtros]);
 
   const handleDelete = async (id) => {
     if (!confirm('¿Estás seguro de eliminar este registro? Esta acción no se puede deshacer.')) {
@@ -104,6 +123,7 @@ export default function CierresPage() {
   };
 
   const handleFiltroChange = (e) => setFiltros({ ...filtros, [e.target.name]: e.target.value });
+  const exportFilters = useMemo(() => ({ search, ...filtros }), [search, filtros]);
 
   return (
     <div className="p-6">
@@ -117,8 +137,8 @@ export default function CierresPage() {
         </div>
         <div className="flex space-x-2">
           <ExportCSVButton
-            filename="aperturas_cierres.csv"
-            filters={{ search }}
+            filename={isHoy ? "aperturas_cierres_hoy.csv" : "aperturas_cierres.csv"}
+            filters={exportFilters}
             service={cierreService}
           />
           <Link
@@ -130,6 +150,29 @@ export default function CierresPage() {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="mb-4 border-b border-gray-200">
+        <nav className="flex -mb-px space-x-6" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab(TABS.HOY)}
+            className={`whitespace-nowrap pb-2 px-1 border-b-2 text-sm font-medium ${isHoy
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+          >
+            Hoy ({todayChile()})
+          </button>
+          <button
+            onClick={() => setActiveTab(TABS.HISTORICO)}
+            className={`whitespace-nowrap pb-2 px-1 border-b-2 text-sm font-medium ${!isHoy
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+          >
+            Histórico (todos los filtros)
+          </button>
+        </nav>
+      </div>
       {/* Filtros */}
       <div className="mb-4 flex flex-wrap gap-4">
         <div className="flex flex-col">
@@ -209,7 +252,9 @@ export default function CierresPage() {
             name="fecha_inicio"
             value={filtros.fecha_inicio}
             onChange={handleFiltroChange}
-            className="px-3 py-2 border border-gray-300 rounded"
+            disabled={isHoy}
+            className={`px-3 py-2 border rounded ${isHoy ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'border-gray-300'}`}
+            title={isHoy ? 'Fijado a hoy en la pestaña "Hoy"' : ''}
           />
         </div>
 
@@ -221,7 +266,9 @@ export default function CierresPage() {
             name="fecha_fin"
             value={filtros.fecha_fin}
             onChange={handleFiltroChange}
-            className="px-3 py-2 border border-gray-300 rounded"
+            disabled={isHoy}
+            className={`px-3 py-2 border rounded ${isHoy ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'border-gray-300'}`}
+            title={isHoy ? 'Fijado a hoy en la pestaña "Hoy"' : ''}
           />
         </div>
       </div>
@@ -247,38 +294,46 @@ export default function CierresPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
-              {cierres.map(c => (
-                <tr key={c.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2">{c.id}</td>
-                  <td className="px-4 py-2">{c.nombre_caja}</td>
-                  <td className="px-4 py-2">
-                    {`${c.nombre_usuario_apertura || "-"} / ${formatFecha(c.fecha_apertura)}, ${c.hora_apertura || "-"}`}
-                  </td>
-                  <td className="px-4 py-2">
-                    {`${c.nombre_usuario_cierre || "-"} / ${formatFecha(c.fecha_cierre)}, ${c.hora_cierre || "-"}`}
-                  </td>
-                  <td className="px-4 py-2">{`$${formatNumber(c.monto_inicial)}`}</td>
-                  <td className="px-4 py-2">{`$${formatNumber(c.total_efectivo)}`}</td>
-                  <td className="px-4 py-2">{`$${formatNumber(c.total_tarjeta)}`}</td>
-                  <td className="px-4 py-2">{`$${formatNumber(c.total_general)}`}</td>
-                  <td className="px-4 py-2">
-                    <span
-                      className={`px-2 py-1 rounded text-white text-xs font-semibold
-                        ${c.estado === 'abierta' ? 'bg-blue-500' : 'bg-red-500'}`}
-                    >
-                      {c.estado}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 space-x-2 flex">
-                    <Link href={`/dashboard/cierres/${c.id}`} className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center">
-                      <PencilSquareIcon className="h-5 w-5 inline" />
-                    </Link>
-                    <button onClick={() => handleDelete(c.id)} className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center">
-                      <TrashIcon className="h-5 w-5 inline" />
-                    </button>
+              {cierres.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                    {isHoy ? 'No hay registros para hoy.' : 'No se encontraron registros.'}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                cierres.map(c => (
+                  <tr key={c.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">{c.id}</td>
+                    <td className="px-4 py-2">{c.nombre_caja}</td>
+                    <td className="px-4 py-2">
+                      {`${c.nombre_usuario_apertura || "-"} / ${formatFecha(c.fecha_apertura)}, ${c.hora_apertura || "-"}`}
+                    </td>
+                    <td className="px-4 py-2">
+                      {`${c.nombre_usuario_cierre || "-"} / ${formatFecha(c.fecha_cierre)}, ${c.hora_cierre || "-"}`}
+                    </td>
+                    <td className="px-4 py-2">{`$${formatNumber(c.monto_inicial)}`}</td>
+                    <td className="px-4 py-2">{`$${formatNumber(c.total_efectivo)}`}</td>
+                    <td className="px-4 py-2">{`$${formatNumber(c.total_tarjeta)}`}</td>
+                    <td className="px-4 py-2">{`$${formatNumber(c.total_general)}`}</td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`px-2 py-1 rounded text-white text-xs font-semibold
+                        ${c.estado === 'abierta' ? 'bg-blue-500' : 'bg-red-500'}`}
+                      >
+                        {c.estado}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 space-x-2 flex">
+                      <Link href={`/dashboard/cierres/${c.id}`} className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center">
+                        <PencilSquareIcon className="h-5 w-5 inline" />
+                      </Link>
+                      <button onClick={() => handleDelete(c.id)} className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center">
+                        <TrashIcon className="h-5 w-5 inline" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
 

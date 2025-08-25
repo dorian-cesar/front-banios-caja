@@ -27,3 +27,8 @@ export function formatTimeForInput(hora) {
 export function formatTimeForBackend(hora) {
     return hora ? (hora.length === 8 ? hora : `${hora}:00`) : null;
 }
+
+export function todayChile() {
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' });
+}
+

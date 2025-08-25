@@ -1,16 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { TableSkeleton } from '@/components/skeletons';
 import { PencilSquareIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { movimientoService } from '@/services/movimiento.service';
 import ExportCSVButton from "@/components/ExportCSVButton";
 import { helperService } from '@/services/helper.service';
-import { formatFecha, formatNumber } from '@/utils/helper';
+import { formatFecha, formatNumber, todayChile } from '@/utils/helper';
 import { useNotification } from "@/contexts/NotificationContext";
 
+
+const TABS = { HOY: 'hoy', HISTORICO: 'historico' };
+
 export default function MovimientosPage() {
+  const [activeTab, setActiveTab] = useState(TABS.HOY);
+  const isHoy = activeTab === TABS.HOY;
+  const [filtersReady, setFiltersReady] = useState(false);
+
   const [movimientos, setMovimientos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,6 +42,18 @@ export default function MovimientosPage() {
     fecha_inicio: '',
     fecha_fin: ''
   });
+
+  useEffect(() => {
+    setPage(1);
+    if (isHoy) {
+      const hoy = todayChile();
+      setFiltros(prev => ({ ...prev, fecha_inicio: hoy, fecha_fin: hoy }));
+    } else {
+      setFiltros(prev => ({ ...prev, fecha_inicio: '', fecha_fin: '' }));
+    }
+    setFiltersReady(true);
+  }, [isHoy]);
+
 
   const fetchMovimientos = async () => {
     setLoading(true);
@@ -79,7 +98,10 @@ export default function MovimientosPage() {
     fetchMetadata();
   }, []);
 
-  useEffect(() => { fetchMovimientos(); }, [page, search, filtros]);
+  useEffect(() => {
+    if (!filtersReady) return;
+    fetchMovimientos();
+  }, [page, search, filtros]);
 
   const handleDelete = async (id) => {
     if (!confirm('¿Estás seguro de eliminar este movimiento? Esta acción no se puede deshacer.')) {
@@ -112,7 +134,7 @@ export default function MovimientosPage() {
   };
 
   const handleFiltroChange = (e) => setFiltros({ ...filtros, [e.target.name]: e.target.value });
-
+  const exportFilters = useMemo(() => ({ search, ...filtros }), [search, filtros]);
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
@@ -125,8 +147,8 @@ export default function MovimientosPage() {
         </div>
         <div className="flex space-x-2">
           <ExportCSVButton
-            filename="movimientos.csv"
-            filters={{ search, ...filtros }}
+            filename={isHoy ? "movimientos_hoy.csv" : "movimientos.csv"}
+            filters={exportFilters}
             service={movimientoService}
           />
           <Link
@@ -137,6 +159,29 @@ export default function MovimientosPage() {
           </Link>
         </div>
 
+      </div>
+      {/* Tabs */}
+      <div className="mb-4 border-b border-gray-200">
+        <nav className="flex -mb-px space-x-6" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab(TABS.HOY)}
+            className={`whitespace-nowrap pb-2 px-1 border-b-2 text-sm font-medium ${isHoy
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+          >
+            Hoy ({todayChile()})
+          </button>
+          <button
+            onClick={() => setActiveTab(TABS.HISTORICO)}
+            className={`whitespace-nowrap pb-2 px-1 border-b-2 text-sm font-medium ${!isHoy
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+          >
+            Histórico (todos los filtros)
+          </button>
+        </nav>
       </div>
 
       {/* Filtros */}
@@ -217,7 +262,9 @@ export default function MovimientosPage() {
             name="fecha_inicio"
             value={filtros.fecha_inicio}
             onChange={handleFiltroChange}
-            className="px-3 py-2 border border-gray-300 rounded"
+            disabled={isHoy}
+            className={`px-3 py-2 border rounded ${isHoy ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'border-gray-300'}`}
+            title={isHoy ? 'Fijado a hoy en la pestaña "Hoy"' : ''}
           />
         </div>
 
@@ -229,7 +276,9 @@ export default function MovimientosPage() {
             name="fecha_fin"
             value={filtros.fecha_fin}
             onChange={handleFiltroChange}
-            className="px-3 py-2 border border-gray-300 rounded"
+            disabled={isHoy}
+            className={`px-3 py-2 border rounded ${isHoy ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'border-gray-300'}`}
+            title={isHoy ? 'Fijado a hoy en la pestaña "Hoy"' : ''}
           />
         </div>
       </div>
@@ -255,33 +304,42 @@ export default function MovimientosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
-              {movimientos.map(m => (
-                <tr key={m.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2">{m.id}</td>
-                  <td className="px-4 py-2">{m.nombre_usuario}</td>
-                  <td className="px-4 py-2">{m.nombre_servicio}</td>
-                  <td className="px-4 py-2">{m.nombre_caja}</td>
-                  <td className="px-4 py-2">{`$${formatNumber(m.monto)}`}</td>
-                  <td className="px-4 py-2">{m.medio_pago}</td>
-                  <td className="px-4 py-2">{formatFecha(m.fecha)}</td>
-                  <td className="px-4 py-2">{m.hora}</td>
-                  <td className="px-4 py-2">{m.codigo}</td>
-                  <td className="px-4 py-2 space-x-2 flex">
-                    <Link
-                      href={`/dashboard/movimientos/${m.id}`}
-                      className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
-                    >
-                      <PencilSquareIcon className="h-5 w-5 inline" />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(m.id)}
-                      className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
-                    >
-                      <TrashIcon className="h-5 w-5 inline" />
-                    </button>
+              {movimientos.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                    {isHoy ? 'No hay movimientos para hoy.' : 'No se encontraron movimientos.'}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                movimientos.map(m => (
+                  <tr key={m.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">{m.id}</td>
+                    <td className="px-4 py-2">{m.nombre_usuario}</td>
+                    <td className="px-4 py-2">{m.nombre_servicio}</td>
+                    <td className="px-4 py-2">{m.nombre_caja}</td>
+                    <td className="px-4 py-2">{`$${formatNumber(m.monto)}`}</td>
+                    <td className="px-4 py-2">{m.medio_pago}</td>
+                    <td className="px-4 py-2">{formatFecha(m.fecha)}</td>
+                    <td className="px-4 py-2">{m.hora}</td>
+                    <td className="px-4 py-2">{m.codigo}</td>
+                    <td className="px-4 py-2 space-x-2 flex">
+                      <Link
+                        href={`/dashboard/movimientos/${m.id}`}
+                        className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
+                      >
+                        <PencilSquareIcon className="h-5 w-5 inline" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(m.id)}
+                        className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
+                      >
+                        <TrashIcon className="h-5 w-5 inline" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+
             </tbody>
           </table>
 

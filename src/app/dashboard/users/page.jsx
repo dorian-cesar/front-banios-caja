@@ -80,7 +80,7 @@ export default function UsersPage() {
         <div className="flex space-x-2 items-center">
           <h1 className="text-3xl font-bold text-gray-800">Gestión de Usuarios</h1>
           <button className='p-2 bg-blue-500 text-white rounded-full hover:bg-blue-800 transition flex items-center justify-center'
-          onClick={() => fetchUsers()}>
+            onClick={() => fetchUsers()}>
             <ArrowPathIcon className="h-6 w-6" />
           </button>
         </div>
@@ -126,32 +126,32 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
-              {users.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2">{u.id}</td>
-                  <td className="px-4 py-2">{u.username}</td>
-                  <td className="px-4 py-2">{u.email}</td>
-                  <td className="px-4 py-2 capitalize">{u.role}</td>
-                  <td className="px-4 py-2 space-x-2 flex">
-                    {u.id !== currentUser.id && (
-                      <Link
-                        href={`/dashboard/users/${u.id}`}
-                        className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
-                      >
-                        <PencilSquareIcon className="h-5 w-5 inline" />
-                      </Link>
-                    )}
-                    {u.id !== currentUser.id && (
-                      <button
-                        onClick={() => handleDelete(u.id)}
-                        className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
-                      >
-                        <TrashIcon className="h-5 w-5 inline" />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {users.filter(u => Number(u.id) !== 1).map((u) => (
+                  <tr key={u.id} className="hover:bg-gray-200">
+                    <td className="px-4 py-2">{u.id}</td>
+                    <td className="px-4 py-2">{u.username}</td>
+                    <td className="px-4 py-2">{u.email}</td>
+                    <td className="px-4 py-2 capitalize">{u.role}</td>
+                    <td className="px-4 py-2 space-x-2 flex">
+                      {u.id !== currentUser.id && (
+                        <Link
+                          href={`/dashboard/users/${u.id}`}
+                          className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
+                        >
+                          <PencilSquareIcon className="h-5 w-5 inline" />
+                        </Link>
+                      )}
+                      {u.id !== currentUser.id && (
+                        <button
+                          onClick={() => handleDelete(u.id)}
+                          className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
+                        >
+                          <TrashIcon className="h-5 w-5 inline" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
 
