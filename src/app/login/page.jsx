@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth.service";
@@ -221,9 +222,9 @@ export default function LoginPage() {
                 <div className="mt-6 text-center text-sm text-gray-600">
                     <p>
                         ¿Problemas para ingresar?{" "}
-                        <a href="#" className="text-blue-600 hover:text-blue-800">
-                            Contacta al administrador
-                        </a>
+                        <Link href="/forgot" className="text-blue-600 hover:text-blue-800">
+                            Reestablece tu Contraseña
+                        </Link>
                     </p>
                 </div>
             </div>
