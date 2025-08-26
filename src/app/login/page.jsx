@@ -223,7 +223,7 @@ export default function LoginPage() {
                     <p>
                         ¿Problemas para ingresar?{" "}
                         <Link href="/forgot" className="text-blue-600 hover:text-blue-800">
-                            Reestablece tu Contraseña
+                            Restablece tu Contraseña
                         </Link>
                     </p>
                 </div>
