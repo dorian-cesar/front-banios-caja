@@ -9,6 +9,7 @@ import ExportCSVButton from "@/components/ExportCSVButton";
 import { helperService } from '@/services/helper.service';
 import { formatFecha, formatNumber, todayChile } from '@/utils/helper';
 import { useNotification } from "@/contexts/NotificationContext";
+import { getCurrentUser } from "@/utils/session";
 
 
 const TABS = { HOY: 'hoy', HISTORICO: 'historico' };
@@ -27,6 +28,8 @@ export default function MovimientosPage() {
   const [total, setTotal] = useState(0);
   const { showNotification } = useNotification();
 
+  const [canEdit, setCanEdit] = useState(false);
+
   const [metadata, setMetadata] = useState({
     usuarios: [],
     servicios: [],
@@ -42,6 +45,11 @@ export default function MovimientosPage() {
     fecha_inicio: '',
     fecha_fin: ''
   });
+
+  useEffect(() => {
+    const u = getCurrentUser();
+    setCanEdit(!!u && Number(u.id) === 1);
+  }, []);
 
   useEffect(() => {
     setPage(1);
@@ -135,6 +143,8 @@ export default function MovimientosPage() {
 
   const handleFiltroChange = (e) => setFiltros({ ...filtros, [e.target.name]: e.target.value });
   const exportFilters = useMemo(() => ({ search, ...filtros }), [search, filtros]);
+  const columsCount = canEdit ? 10 : 9;
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
@@ -151,14 +161,15 @@ export default function MovimientosPage() {
             filters={exportFilters}
             service={movimientoService}
           />
-          <Link
-            href="/dashboard/movimientos/new"
-            className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
-          >
-            Nuevo Movimiento
-          </Link>
+          {canEdit && (
+            <Link
+              href="/dashboard/movimientos/new"
+              className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
+            >
+              Nuevo Movimiento
+            </Link>
+          )}
         </div>
-
       </div>
       {/* Tabs */}
       <div className="mb-4 border-b border-gray-200">
@@ -300,19 +311,21 @@ export default function MovimientosPage() {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fecha</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Hora</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Código</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Acciones</th>
+                {canEdit && (
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Acciones</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
               {movimientos.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={columsCount} className="px-4 py-8 text-center text-gray-500">
                     {isHoy ? 'No hay movimientos para hoy.' : 'No se encontraron movimientos.'}
                   </td>
                 </tr>
               ) : (
                 movimientos.map(m => (
-                  <tr key={m.id} className="hover:bg-gray-50">
+                  <tr key={m.id} className="hover:bg-gray-200">
                     <td className="px-4 py-2">{m.id}</td>
                     <td className="px-4 py-2">{m.nombre_usuario}</td>
                     <td className="px-4 py-2">{m.nombre_servicio}</td>
@@ -322,20 +335,22 @@ export default function MovimientosPage() {
                     <td className="px-4 py-2">{formatFecha(m.fecha)}</td>
                     <td className="px-4 py-2">{m.hora}</td>
                     <td className="px-4 py-2">{m.codigo}</td>
-                    <td className="px-4 py-2 space-x-2 flex">
-                      <Link
-                        href={`/dashboard/movimientos/${m.id}`}
-                        className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
-                      >
-                        <PencilSquareIcon className="h-5 w-5 inline" />
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(m.id)}
-                        className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
-                      >
-                        <TrashIcon className="h-5 w-5 inline" />
-                      </button>
-                    </td>
+                    {canEdit && (
+                      <td className="px-4 py-2 space-x-2 flex">
+                        <Link
+                          href={`/dashboard/movimientos/${m.id}`}
+                          className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center"
+                        >
+                          <PencilSquareIcon className="h-5 w-5 inline" />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(m.id)}
+                          className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center"
+                        >
+                          <TrashIcon className="h-5 w-5 inline" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

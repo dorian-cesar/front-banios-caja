@@ -302,7 +302,7 @@ export default function CierresPage() {
                 </tr>
               ) : (
                 cierres.map(c => (
-                  <tr key={c.id} className="hover:bg-gray-50">
+                  <tr key={c.id} className="hover:bg-gray-200">
                     <td className="px-4 py-2">{c.id}</td>
                     <td className="px-4 py-2">{c.nombre_caja}</td>
                     <td className="px-4 py-2">

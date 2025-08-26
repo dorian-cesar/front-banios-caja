@@ -126,7 +126,7 @@ export default function ServicesPage() {
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
               {services.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-50">
+                <tr key={s.id} className="hover:bg-gray-200">
                   <td className="px-4 py-2">{s.id}</td>
                   <td className="px-4 py-2">{s.nombre}</td>
                   <td className="px-4 py-2 capitalize">{s.tipo.toLowerCase()}</td>

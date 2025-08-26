@@ -114,7 +114,7 @@ export default function CajasPage() {
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
               {cajas.map((caja) => (
-                <tr key={caja.id} className="hover:bg-gray-50">
+                <tr key={caja.id} className="hover:bg-gray-200">
                   <td className="px-4 py-2">{caja.id}</td>
                   <td className="px-4 py-2">{caja.numero_caja}</td>
                   <td className="px-4 py-2">{caja.nombre}</td>
