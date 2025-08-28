@@ -290,7 +290,7 @@ export default function CierresPage() {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Total Tarjeta</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Total General</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Estado</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Acciones</th>
+                {/* <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Acciones</th> */}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
@@ -323,14 +323,14 @@ export default function CierresPage() {
                         {c.estado}
                       </span>
                     </td>
-                    <td className="px-4 py-2 space-x-2 flex">
+                    {/* <td className="px-4 py-2 space-x-2 flex">
                       <Link href={`/dashboard/cierres/${c.id}`} className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center">
                         <PencilSquareIcon className="h-5 w-5 inline" />
                       </Link>
-                      {/* <button onClick={() => handleDelete(c.id)} className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center">
+                      <button onClick={() => handleDelete(c.id)} className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center">
                         <TrashIcon className="h-5 w-5 inline" />
-                      </button> */}
-                    </td>
+                      </button>
+                    </td> */}
                   </tr>
                 ))
               )}
