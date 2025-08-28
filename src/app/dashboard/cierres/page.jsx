@@ -273,7 +273,6 @@ export default function CierresPage() {
         </div>
       </div>
 
-
       {loading && <TableSkeleton rows={10} cols={10} />}
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
@@ -282,9 +281,8 @@ export default function CierresPage() {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Caja</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Usuario Apertura</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fecha Apertura</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fecha</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Hora Apertura</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fecha Cierre</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Hora Cierre</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Monto Inicial</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Total Efectivo</th>
@@ -322,11 +320,6 @@ export default function CierresPage() {
                     {/* Hora Apertura */}
                     <td className="px-4 py-2">
                       {c.hora_apertura || "-"}
-                    </td>
-
-                    {/* Fecha Cierre */}
-                    <td className="px-4 py-2">
-                      {c.fecha_cierre ? formatFecha(c.fecha_cierre) : "-"}
                     </td>
 
                     {/* Hora Cierre */}
