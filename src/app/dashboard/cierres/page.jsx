@@ -141,12 +141,12 @@ export default function CierresPage() {
             filters={exportFilters}
             service={cierreService}
           />
-          <Link
+          {/* <Link
             href={"/dashboard/cierres/new"}
             className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
           >
             Nueva Apertura
-          </Link>
+          </Link> */}
         </div>
       </div>
 
