@@ -275,8 +275,6 @@ export default function CierresPage() {
 
 
       {loading && <TableSkeleton rows={10} cols={10} />}
-
-      {!loading && (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
             <thead className="bg-gray-100">
@@ -284,7 +282,10 @@ export default function CierresPage() {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Caja</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Usuario Apertura</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Usuario Cierre</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fecha Apertura</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Hora Apertura</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fecha Cierre</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Hora Cierre</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Monto Inicial</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Total Efectivo</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Total Tarjeta</th>
@@ -296,7 +297,7 @@ export default function CierresPage() {
             <tbody className="divide-y divide-gray-100 bg-white">
               {cierres.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={13} className="px-4 py-8 text-center text-gray-500">
                     {isHoy ? 'No hay registros para hoy.' : 'No se encontraron registros.'}
                   </td>
                 </tr>
@@ -305,12 +306,34 @@ export default function CierresPage() {
                   <tr key={c.id} className="hover:bg-gray-200">
                     <td className="px-4 py-2">{c.id}</td>
                     <td className="px-4 py-2">{c.nombre_caja}</td>
+
+                    {/* Usuario Apertura */}
                     <td className="px-4 py-2">
-                      {`${c.nombre_usuario_apertura || "-"} / ${formatFecha(c.fecha_apertura)}, ${c.hora_apertura || "-"}`}
+                      <span className="font-semibold text-gray-800">
+                        {c.nombre_usuario_apertura || "-"}
+                      </span>
                     </td>
+
+                    {/* Fecha Apertura */}
                     <td className="px-4 py-2">
-                      {`${c.nombre_usuario_cierre || "-"} / ${formatFecha(c.fecha_cierre)}, ${c.hora_cierre || "-"}`}
+                      {c.fecha_apertura ? formatFecha(c.fecha_apertura) : "-"}
                     </td>
+
+                    {/* Hora Apertura */}
+                    <td className="px-4 py-2">
+                      {c.hora_apertura || "-"}
+                    </td>
+
+                    {/* Fecha Cierre */}
+                    <td className="px-4 py-2">
+                      {c.fecha_cierre ? formatFecha(c.fecha_cierre) : "-"}
+                    </td>
+
+                    {/* Hora Cierre */}
+                    <td className="px-4 py-2">
+                      {c.hora_cierre || "-"}
+                    </td>
+
                     <td className="px-4 py-2">{`$${formatNumber(c.monto_inicial)}`}</td>
                     <td className="px-4 py-2">{`$${formatNumber(c.total_efectivo)}`}</td>
                     <td className="px-4 py-2">{`$${formatNumber(c.total_tarjeta)}`}</td>
@@ -318,11 +341,12 @@ export default function CierresPage() {
                     <td className="px-4 py-2">
                       <span
                         className={`px-2 py-1 rounded text-white text-xs font-semibold
-                        ${c.estado === 'abierta' ? 'bg-blue-500' : 'bg-red-500'}`}
+                          ${c.estado === 'abierta' ? 'bg-blue-500' : 'bg-red-500'}`}
                       >
                         {c.estado}
                       </span>
                     </td>
+                    {/* Acciones (mantener comentado) */}
                     {/* <td className="px-4 py-2 space-x-2 flex">
                       <Link href={`/dashboard/cierres/${c.id}`} className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center">
                         <PencilSquareIcon className="h-5 w-5 inline" />
@@ -358,7 +382,6 @@ export default function CierresPage() {
             </button>
           </div>
         </div>
-      )}
     </div>
   );
 }
