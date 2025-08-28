@@ -103,7 +103,7 @@ export default function CajasPage() {
           <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
+                {/* <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th> */}
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Número</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Nombre</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Ubicación</th>
@@ -115,7 +115,7 @@ export default function CajasPage() {
             <tbody className="divide-y divide-gray-100 bg-white">
               {cajas.map((caja) => (
                 <tr key={caja.id} className="hover:bg-gray-200">
-                  <td className="px-4 py-2">{caja.id}</td>
+                  {/* <td className="px-4 py-2">{caja.id}</td> */}
                   <td className="px-4 py-2">{caja.numero_caja}</td>
                   <td className="px-4 py-2">{caja.nombre}</td>
                   <td className="px-4 py-2">{caja.ubicacion}</td>

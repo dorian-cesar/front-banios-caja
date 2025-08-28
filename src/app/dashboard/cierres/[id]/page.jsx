@@ -112,12 +112,12 @@ export default function EditCierrePage() {
                 <h1 className="text-2xl font-bold text-gray-800">
                     Editar Cierre #{form.id} - Caja {form.numero_caja}
                 </h1>
-                <button
+                {/* <button
                     onClick={handleDelete}
                     className="bg-red-500 text-white font-semibold px-4 py-2 rounded-md hover:bg-red-600 transition"
                 >
                     Eliminar Registro
-                </button>
+                </button> */}
             </div>
 
 
@@ -167,7 +167,7 @@ export default function EditCierrePage() {
                     </div>
 
                     {/* Sección de Totales */}
-                    <div className="space-y-4">
+                    {/* <div className="space-y-4">
                         <h2 className="text-lg font-semibold text-gray-700 border-b pb-2">Totales</h2>
 
                         <div>
@@ -208,7 +208,7 @@ export default function EditCierrePage() {
                                 placeholder="0"
                             />
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div>

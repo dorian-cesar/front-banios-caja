@@ -327,9 +327,9 @@ export default function CierresPage() {
                       <Link href={`/dashboard/cierres/${c.id}`} className="h-7 w-7 bg-blue-500 text-white rounded hover:bg-blue-800 transition flex items-center justify-center">
                         <PencilSquareIcon className="h-5 w-5 inline" />
                       </Link>
-                      <button onClick={() => handleDelete(c.id)} className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center">
+                      {/* <button onClick={() => handleDelete(c.id)} className="h-7 w-7 bg-red-500 text-white rounded hover:bg-red-800 transition flex items-center justify-center">
                         <TrashIcon className="h-5 w-5 inline" />
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))

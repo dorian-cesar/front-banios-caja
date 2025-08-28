@@ -311,9 +311,9 @@ export default function MovimientosPage() {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fecha</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Hora</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Código</th>
-                {canEdit && (
+                {/* {canEdit && (
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Acciones</th>
-                )}
+                )} */}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
@@ -335,7 +335,7 @@ export default function MovimientosPage() {
                     <td className="px-4 py-2">{formatFecha(m.fecha)}</td>
                     <td className="px-4 py-2">{m.hora}</td>
                     <td className="px-4 py-2">{m.codigo}</td>
-                    {canEdit && (
+                    {/* {canEdit && (
                       <td className="px-4 py-2 space-x-2 flex">
                         <Link
                           href={`/dashboard/movimientos/${m.id}`}
@@ -350,7 +350,7 @@ export default function MovimientosPage() {
                           <TrashIcon className="h-5 w-5 inline" />
                         </button>
                       </td>
-                    )}
+                    )} */}
                   </tr>
                 ))
               )}
