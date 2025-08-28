@@ -161,14 +161,14 @@ export default function MovimientosPage() {
             filters={exportFilters}
             service={movimientoService}
           />
-          {canEdit && (
+          {/* {canEdit && (
             <Link
               href="/dashboard/movimientos/new"
               className="px-4 py-2 bg-green-600 text-white text-lg font-medium rounded hover:bg-green-800 transition"
             >
               Nuevo Movimiento
             </Link>
-          )}
+          )} */}
         </div>
       </div>
       {/* Tabs */}
